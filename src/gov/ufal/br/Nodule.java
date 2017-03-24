@@ -1,64 +1,52 @@
 package gov.ufal.br;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 public class Nodule {
 
-	Integer id;
-	String[] features;
+	String id;
+	List<String> features;
 	int malignance;
+	List<Nodule> nearbyNodules;
+	BigDecimal distance = new BigDecimal("0");
+
+	public Nodule(String id, List<String> features, int malignance) {
+		super();
+		this.id = id;
+		this.features = features;
+		this.malignance = malignance;
+	}
+
+	public BigDecimal getDistance() {
+		return distance;
+	}
+
+	public void setDistance(BigDecimal distance) {
+		this.distance = distance;
+	}
 	
-	ListNearestNodules nearestByAll;
-	ListNearestNodules nearestByColor;
-	ListNearestNodules nearestByForm;
-	ListNearestNodules nearestByTexture;
-	ListNearestNodules nearestByEdgeSharpness;
-	
-	public Integer getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+
+	public void setId(String id) {
 		this.id = id;
 	}
-	public String[] getFeatures() {
+
+	public List<String> getFeatures() {
 		return features;
 	}
-	public void setFeatures(String[] features) {
+
+	public void setFeatures(List<String> features) {
 		this.features = features;
 	}
+
 	public int getMalignance() {
 		return malignance;
 	}
+
 	public void setMalignance(int malignance) {
 		this.malignance = malignance;
 	}
-	public ListNearestNodules getNearestByAll() {
-		return nearestByAll;
-	}
-	public void setNearestByAll(ListNearestNodules nearestByAll) {
-		this.nearestByAll = nearestByAll;
-	}
-	public ListNearestNodules getNearestByColor() {
-		return nearestByColor;
-	}
-	public void setNearestByColor(ListNearestNodules nearestByColor) {
-		this.nearestByColor = nearestByColor;
-	}
-	public ListNearestNodules getNearestByForm() {
-		return nearestByForm;
-	}
-	public void setNearestByForm(ListNearestNodules nearestByForm) {
-		this.nearestByForm = nearestByForm;
-	}
-	public ListNearestNodules getNearestByTexture() {
-		return nearestByTexture;
-	}
-	public void setNearestByTexture(ListNearestNodules nearestByTexture) {
-		this.nearestByTexture = nearestByTexture;
-	}
-	public ListNearestNodules getNearestByEdgeSharpness() {
-		return nearestByEdgeSharpness;
-	}
-	public void setNearestByEdgeSharpness(ListNearestNodules nearestByEdgeSharpness) {
-		this.nearestByEdgeSharpness = nearestByEdgeSharpness;
-	}
-	
 }

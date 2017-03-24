@@ -2,11 +2,16 @@ package gov.ufal.br;
 
 import java.math.BigDecimal;
 
-public class NearestNodules {
+public class NearbyNodules {
 	
 	Nodule nodule;
 	BigDecimal distance;
 	
+	public NearbyNodules(Nodule nodule, BigDecimal distance) {
+		super();
+		this.nodule = nodule;
+		this.distance = distance;
+	}
 	public Nodule getNodule() {
 		return nodule;
 	}
