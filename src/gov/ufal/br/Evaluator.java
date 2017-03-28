@@ -56,7 +56,7 @@ public class Evaluator {
 		this.qntEvaluatedNodules = qntEvaluatedNodules;
 	}
 
-	public void setMalignantAleatoryNodules() {
+	public void setAleatoryMalignantNodules() {
 		this.aleatoryMalignantNodules = setAleatoryNodules(5);
 		this.aleatoryMalignantNodules.addAll(setAleatoryNodules(4));
 	}
@@ -73,7 +73,7 @@ public class Evaluator {
 		Nodule nodule = null;
 		int n;
 		int noduleMalignance = 0;
-		int qnt = qntEvaluatedNodules / 2;
+		int qnt = qntEvaluatedNodules / 4;
 		for (int i = 0; i < qnt; i++) {
 			while (malignanceProbability != noduleMalignance) {
 				rnd = new Random();

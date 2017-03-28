@@ -2,7 +2,12 @@ package gov.ufal.br;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.OptionalDouble;
+
+import javax.xml.namespace.QName;
 
 public class ListNearestNodules {
 	
@@ -10,6 +15,15 @@ public class ListNearestNodules {
 	List<Nodule> nearbyNodules;
 	List<Double> precision;
 	Double averagePrecision;
+
+	@Override
+	public String toString() {
+		String str = "-------------- ListNearestNodules [nearbyNodules= ----------------";
+				for (Nodule nn : nearbyNodules) {
+					str += nn.toString() + "\n ";
+				}
+		return str;
+	}
 
 	public ListNearestNodules(Nodule primaryNodule, List<Nodule> nearbyNodules) {
 		super();
@@ -23,11 +37,12 @@ public class ListNearestNodules {
 
 	public void setNearbyNodules(List<Nodule> nearbyNodules) {
 		for (Nodule nodule : nearbyNodules) {
-			BigDecimal distance = Operations.euclidianDistance(primaryNodule, nodule, 0, 120);
+			BigDecimal distance = Operations.euclidianDistance(primaryNodule, nodule);
 			nodule.setDistance(distance);
 		}
-		// TODO Ordenar nodulos por distancia
-		this.nearbyNodules = nearbyNodules;
+		Collections.sort(nearbyNodules, Comparator.comparing(Nodule::getDistance));
+		
+		this.nearbyNodules = nearbyNodules.subList(0, 10);
 	}
 
 	public List<Double> getPrecision() {
@@ -76,8 +91,8 @@ public class ListNearestNodules {
 		return averagePrecision;
 	}
 
-	public void setAveragePrecision(Double averagePrecision) {
-		this.averagePrecision = averagePrecision;
+	public void setAveragePrecision() {
+		this.averagePrecision = precision.stream().mapToDouble(a -> a).average().orElse(0);
 	}
 
 }
