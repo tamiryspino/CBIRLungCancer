@@ -2,58 +2,48 @@ package gov.ufal.br;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
 
-	public LineNumberReader br = null;
-	public LineNumberReader ln = null;
-	public List<Nodule> aleatoryMaligneNodulesFeatures;
-	public List<Nodule> aleatoryBenigneNodulesFeatures;
-	public String csvFile = "/home/tamirysp/Documentos/TCC/tcc/nodulesFeaturesDavid.csv";
-	public String csvSplitBy = ",";
+	public static void main(String[] args) {
+		
+		String nameFile = "/home/tamirysp/Documentos/TCC/tcc/nodulesFeaturesDavid.csv";
+		File csvFile = new File(nameFile);
+		String csvSplitBy = ",";
+		List<Nodule> allNodules = setAllNodules(csvFile, csvSplitBy);
+		int qntRanking = 10;
+		int qntAleatoryNodules = 20;
+		
+		Evaluator evaluator = new Evaluator(allNodules, qntRanking, qntAleatoryNodules);		
 
-	public List<Nodule> getAleatoryNodules(int qnt, int malignanceProbability) {
-		List<Nodule> nodules = new ArrayList<>();
-		String n = "";
-		List<String> features = new ArrayList<>();
-		Nodule nodule;
-		int noduleMalignance = 0;
-		try {
-			for (int i = 0; i < qnt; i++) {
-				while (malignanceProbability != noduleMalignance) {
-					n = choose(new File(csvFile));
-					features = Arrays.asList(n.split(csvSplitBy));
-					noduleMalignance = features.size() - 2;
-				}
-				nodule = new Nodule(features.get(features.size() - 1), features.subList(0, features.size() - 3),
-						noduleMalignance);
-				nodules.add(nodule);
-				noduleMalignance = 0;
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-
-		return nodules;
 	}
 
-	public static String choose(File f) throws FileNotFoundException {
-		String result = null;
-		Random rand = new Random();
-		int n = 0;
-		for (Scanner sc = new Scanner(f); sc.hasNext();) {
-			++n;
-			String line = sc.nextLine();
-			if (rand.nextInt(n) == 0)
-				result = line;
+	public static List<Nodule> setAllNodules(File csvFile, String csvSplitBy) {
+		List<Nodule> nodules = new ArrayList<>();
+		Nodule nodule;
+		Scanner scanner;
+		
+		try {
+			scanner = new Scanner(csvFile);
+			while (scanner.hasNext()) {
+				List<String> features = Arrays
+						.asList(scanner.nextLine().split(csvSplitBy));
+				nodule = new Nodule(features.get(features.size() - 1), // ID
+						features.subList(0, features.size() - 3), // Features
+						features.size() - 2); // Malignance
+				nodules.add(nodule);
+			}
+			scanner.close();
 		}
-
-		return result;
+		catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return nodules;
 	}
 }

@@ -8,7 +8,8 @@ public class Nodule {
 	String id;
 	List<String> features;
 	int malignance;
-	List<Nodule> nearbyNodules;
+	//List<Nodule> nearbyNodules;
+	ListNearestNodules nearbyNodules;
 	BigDecimal distance = new BigDecimal("0");
 
 	public Nodule(String id, List<String> features, int malignance) {
@@ -16,6 +17,14 @@ public class Nodule {
 		this.id = id;
 		this.features = features;
 		this.malignance = malignance;
+	}
+	
+	public Nodule(String id, List<String> features, int malignance, List<Nodule> nearestNodules) {
+		super();
+		this.id = id;
+		this.features = features;
+		this.malignance = malignance;
+		setNearbyNodules(nearestNodules);
 	}
 
 	public BigDecimal getDistance() {
@@ -48,5 +57,13 @@ public class Nodule {
 
 	public void setMalignance(int malignance) {
 		this.malignance = malignance;
+	}
+
+	public ListNearestNodules getNearbyNodules() {
+		return nearbyNodules;
+	}
+
+	public void setNearbyNodules(List<Nodule> nearbyNodules) {
+		this.nearbyNodules = new ListNearestNodules(this, nearbyNodules);
 	}
 }

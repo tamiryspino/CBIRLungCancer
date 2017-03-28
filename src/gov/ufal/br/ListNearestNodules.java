@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ListNearestNodules {
-
+	
 	Nodule primaryNodule;
 	List<Nodule> nearbyNodules;
 	List<Double> precision;
@@ -15,14 +15,6 @@ public class ListNearestNodules {
 		super();
 		this.primaryNodule = primaryNodule;
 		setNearbyNodules(nearbyNodules);
-	}
-
-	public Nodule getPrimaryNodule() {
-		return primaryNodule;
-	}
-
-	public void setPrimaryNodule(Nodule primaryNodule) {
-		this.primaryNodule = primaryNodule;
 	}
 
 	public List<Nodule> getNearbyNodules() {
@@ -46,18 +38,18 @@ public class ListNearestNodules {
 		Double sumMalignances = 0.0;
 		List<Double> partialPrecision = new ArrayList<>();
 		int noduleQnt = 0;
-		if (isMaligne(primaryNodule.getMalignance())) {
+		if (isMalignant(primaryNodule.getMalignance())) {
 			for (Nodule nodule : nearbyNodules) {
 				noduleQnt++;
-				if (isMaligne(nodule.getMalignance())) {
+				if (isMalignant(nodule.getMalignance())) {
 					sumMalignances++;
 				}
 				partialPrecision.add(sumMalignances / noduleQnt);
 			}
-		} else if (isBenigne(primaryNodule.getMalignance())) {
+		} else if (isBenign(primaryNodule.getMalignance())) {
 			for (Nodule nodule : nearbyNodules) {
 				noduleQnt++;
-				if (isBenigne(nodule.getMalignance())) {
+				if (isBenign(nodule.getMalignance())) {
 					sumMalignances++;
 				}
 				partialPrecision.add(sumMalignances / noduleQnt);
@@ -66,32 +58,18 @@ public class ListNearestNodules {
 		this.precision = partialPrecision;
 	}
 
-	public boolean isMaligne(int malignance) {
+	public boolean isMalignant(int malignance) {
 		if (malignance == 5 || malignance == 4) {
 			return true;
 		}
 		return false;
 	}
 
-	public boolean isBenigne(int malignance) {
+	public boolean isBenign(int malignance) {
 		if (malignance == 1 || malignance == 2) {
 			return true;
 		}
 		return false;
-	}
-
-	public void setPrecisionForBenigneNodule() {
-		Double sumMalignances = 0.0;
-		List<Double> partialPrecision = new ArrayList<>();
-		int noduleQnt = 0;
-		for (Nodule nodule : nearbyNodules) {
-			noduleQnt++;
-			if (nodule.getMalignance() == 1 || nodule.getMalignance() == 2) {
-				sumMalignances++;
-			}
-			partialPrecision.add(sumMalignances / noduleQnt);
-		}
-		this.precision = partialPrecision;
 	}
 
 	public Double getAveragePrecision() {
