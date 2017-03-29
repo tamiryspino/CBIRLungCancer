@@ -5,44 +5,47 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.OptionalDouble;
-
-import javax.xml.namespace.QName;
 
 public class ListNearestNodules {
-	
+
 	Nodule primaryNodule;
 	List<Nodule> nearbyNodules;
 	List<Double> precision;
 	Double averagePrecision;
 
-	@Override
-	public String toString() {
-		String str = "-------------- ListNearestNodules [nearbyNodules= ----------------";
-				for (Nodule nn : nearbyNodules) {
-					str += nn.toString() + "\n ";
-				}
-		return str;
-	}
-
-	public ListNearestNodules(Nodule primaryNodule, List<Nodule> nearbyNodules) {
+	public ListNearestNodules(Nodule primaryNodule, List<Nodule> nearbyNodules, Distances distance,
+			GroupFeaturesEnum features, int qntRanking) {
 		super();
 		this.primaryNodule = primaryNodule;
-		setNearbyNodules(nearbyNodules);
+		setNearbyNodules(nearbyNodules, distance, features, qntRanking);
+		this.setPrecision();
+		this.setAveragePrecision();
+	}
+
+	public StringBuilder showNearbyNodules() {
+		StringBuilder str = new StringBuilder("-------------- ListNearestNodules [nearbyNodules= ----------------");
+		for (Nodule nn : nearbyNodules) {
+			str.append(nn.toString() + "\n ");
+		}
+		return str;
 	}
 
 	public List<Nodule> getNearbyNodules() {
 		return nearbyNodules;
 	}
 
-	public void setNearbyNodules(List<Nodule> nearbyNodules) {
+	public void setNearbyNodules(List<Nodule> nearbyNodules, Distances distanceFormula, GroupFeaturesEnum features, int qntRanking) {
+		BigDecimal distance = new BigDecimal("0");
 		for (Nodule nodule : nearbyNodules) {
-			BigDecimal distance = Operations.euclidianDistance(primaryNodule, nodule);
+			if (distanceFormula == Distances.EUCLIDIAN) {
+				distance = Operations.euclidianDistance(primaryNodule, nodule, features);
+			}
+			// } else if (distanceFormula == Distances.)
 			nodule.setDistance(distance);
 		}
 		Collections.sort(nearbyNodules, Comparator.comparing(Nodule::getDistance));
-		
-		this.nearbyNodules = nearbyNodules.subList(0, 10);
+
+		this.nearbyNodules = nearbyNodules.subList(0, nearbyNodules.size() > qntRanking ? qntRanking : nearbyNodules.size());
 	}
 
 	public List<Double> getPrecision() {

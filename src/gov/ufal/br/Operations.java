@@ -1,8 +1,6 @@
 package gov.ufal.br;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -13,10 +11,10 @@ public class Operations {
 	}
 
 
-	public static BigDecimal euclidianDistance(Nodule primaryNodule, Nodule observedNodule) {
+	public static BigDecimal euclidianDistance(Nodule primaryNodule, Nodule observedNodule, GroupFeaturesEnum features) {
 		BigDecimal sumFeaturesDifs = new BigDecimal("0");
-		List<String> strPrimaryNoduleFeatures = primaryNodule.getFeatures();
-		List<String> strObservedNoduleFeatures = observedNodule.getFeatures();
+		List<String> strPrimaryNoduleFeatures = primaryNodule.getFeatures().subList(features.getInicialIndex(), features.getFinalIndex());
+		List<String> strObservedNoduleFeatures = observedNodule.getFeatures().subList(features.getInicialIndex(), features.getFinalIndex());
 
 		List<BigDecimal> primaryNoduleFeatures = strPrimaryNoduleFeatures.stream().map(BigDecimal::new)
 				.collect(Collectors.toList());
@@ -34,16 +32,5 @@ public class Operations {
 		}
 
 		return sqrt(sumFeaturesDifs);
-	}
-	
-	public void setCloserNodulesByAll(Nodule primaryNodule, List<Nodule> nodules) {
-
-		List<NearbyNodules> listNearbyNodules = new LinkedList<>();
-		for (Nodule nodule : nodules) {
-
-			BigDecimal distance = euclidianDistance(primaryNodule, nodule);
-			NearbyNodules nearbyNodule = new NearbyNodules(nodule, distance);
-			listNearbyNodules.add(nearbyNodule);
-		}
 	}
 }

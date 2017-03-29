@@ -1,26 +1,19 @@
 package gov.ufal.br;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-import java.util.Scanner;
 
 public class Evaluator {
 
 	public List<Nodule> aleatoryMalignantNodules;
 	public List<Nodule> aleatoryBenignNodules;
-	public List<Nodule> allNodules; // Esses não possuem vizinhos
-	public int qntEvaluatedNodulesRanking; // TODO Setar para 10
-	public int qntEvaluatedNodules; // Deve ser um valor par //TODO Setar para 10
+	public List<Nodule> allNodules;
+	public int qntEvaluatedNodules;
 	
-	public Evaluator(List<Nodule> allNodules, int qntEvaluatedNodulesRanking,
-			int qntEvaluatedNodules) {
+	public Evaluator(List<Nodule> allNodules, int qntEvaluatedNodules) {
 		super();
 		this.allNodules = allNodules;
-		this.qntEvaluatedNodulesRanking = qntEvaluatedNodulesRanking;
 		this.qntEvaluatedNodules = qntEvaluatedNodules;
 	}
 	
@@ -38,14 +31,6 @@ public class Evaluator {
 
 	public void setAleatoryBenignNodules(List<Nodule> aleatoryBenignNodules) {
 		this.aleatoryBenignNodules = aleatoryBenignNodules;
-	}
-
-	public int getQntEvaluatedNodulesRanking() {
-		return qntEvaluatedNodulesRanking;
-	}
-
-	public void setQntEvaluatedNodulesRanking(int qntEvaluatedNodulesRanking) {
-		this.qntEvaluatedNodulesRanking = qntEvaluatedNodulesRanking;
 	}
 
 	public int getQntEvaluatedNodules() {
