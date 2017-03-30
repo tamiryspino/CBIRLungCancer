@@ -1,7 +1,6 @@
 package gov.ufal.br;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Nodule {
@@ -9,8 +8,7 @@ public class Nodule {
 	String id;
 	List<String> features;
 	int malignance;
-	//List<Nodule> nearbyNodules;
-	List<ListNearestNodules> nearbyNodules = new ArrayList<>();
+	ListNearestNodules nearbyNodulesByAll;
 	BigDecimal distance = new BigDecimal("0");
 	
 	public Nodule(String id, List<String> features, int malignance) {
@@ -52,16 +50,12 @@ public class Nodule {
 		this.malignance = malignance;
 	}
 
-	public List<ListNearestNodules> getNearbyNodules() {
-		return nearbyNodules;
+	public ListNearestNodules getNearbyNodulesByAll() {
+		return nearbyNodulesByAll;
 	}
 
-	public void setNearbyNodules(List<ListNearestNodules> nearbyNodules) {
-		this.nearbyNodules = nearbyNodules;
-	}
-	
-	public void addListNearestNodules(ListNearestNodules listNearestNodules) {
-		this.nearbyNodules.add(listNearestNodules);
+	public void setNearbyNodulesByAll(ListNearestNodules nearbyNodulesByAll) {
+		this.nearbyNodulesByAll = nearbyNodulesByAll;
 	}
 
 	@Override
@@ -69,13 +63,10 @@ public class Nodule {
 		return "Nodule [id=" + id + ", malignance=" + malignance + ", distance=" + distance + "] \n";
 	}
 	
-	public String showNearbys(){
-		String str = "--------------------- NEARBY NODULES ------------------------\n";
-		for (ListNearestNodules lnn: nearbyNodules) {
-			str+= "Lista " + nearbyNodules.indexOf(lnn) + " de " + nearbyNodules.size() + ": \n";
-			for (Nodule n : lnn.getNearbyNodules()) {
-				str += n.toString();
-			}
+	public StringBuilder showNearbys(){
+		StringBuilder str = new StringBuilder("--------------------- NEARBY NODULES ------------------------\n");
+		for (Nodule n : nearbyNodulesByAll.getNearbyNodules()) {
+				str.append(n.toString());
 		}
 		return str;
 	}

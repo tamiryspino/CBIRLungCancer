@@ -2,10 +2,11 @@ package gov.ufal.br;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Main {
 
@@ -14,35 +15,32 @@ public class Main {
 		String nameFile = "/home/tamirysp/Documentos/TCC/tcc/nodulesFeaturesDavid.csv";
 		File csvFile = new File(nameFile);
 		String csvSplitBy = ",";
-		List<Nodule> allNodules = setAllNodules(csvFile, csvSplitBy);
+		Set<Nodule> allNodules = setAllNodules(csvFile, csvSplitBy);
 		int qntRanking = 10;
 		int qntAleatoryNodules = 20; // Cada 1/4 desses nódulos tera uma
 										// malignancia diferente
 
 		Evaluator evaluator = new Evaluator(allNodules, qntAleatoryNodules);
-		evaluator.setAleatoryBenignNodules();
-		evaluator.setAleatoryMalignantNodules();
+		Set<Nodule> aleatoryBenignNodules = evaluator.getAleatoryBenignNodules();
+		Set<Nodule> aleatoryMalignantNodules = evaluator.getAleatoryMalignantNodules();
+				//System.err.println(evaluator.getAleatoryBenignNodules());
 
 		System.out.println(qntAleatoryNodules + " nódulos aleatórios foram escolhidos!");
-
-		for (Nodule nodule : evaluator.getAleatoryBenignNodules()) {
-			ListNearestNodules listNearestNodules = new ListNearestNodules(nodule, allNodules, Distances.EUCLIDIAN,
-					GroupFeaturesEnum.ALL_FEATURES, qntRanking);
-			nodule.addListNearestNodules(listNearestNodules);
-		}
-
-		for (Nodule nodule : evaluator.getAleatoryMalignantNodules()) {
-			ListNearestNodules listNearestNodules = new ListNearestNodules(nodule, allNodules, Distances.EUCLIDIAN,
-					GroupFeaturesEnum.ALL_FEATURES, qntRanking);
-			nodule.addListNearestNodules(listNearestNodules);
-		}
-		
+		evaluator.setNearbyNodulesByAllFeatures(aleatoryBenignNodules, allNodules, qntRanking);
+		evaluator.setNearbyNodulesByAllFeatures(aleatoryMalignantNodules, allNodules, qntRanking);
 		System.out.println("Vizinhança dos nódulos foi adicionada pela menor distância euclidiana.");
 
-	}
+		List<Double> averagePrecisionForBenignNodules = evaluator
+				.setAveragePrecisionForAllNodules(evaluator.getAleatoryBenignNodules());
+		System.out.println("Lista da média das precisões para nódulos benignos: " + averagePrecisionForBenignNodules);
+		GraphPanel gp = new GraphPanel(averagePrecisionForBenignNodules);
+		gp.createAndShowGui("Precisão ("+qntAleatoryNodules/2+ ") para Nódulos Benignos", averagePrecisionForBenignNodules);
+		
 
-	public static List<Nodule> setAllNodules(File csvFile, String csvSplitBy) {
-		List<Nodule> nodules = new ArrayList<>();
+	}
+	
+	public static Set<Nodule> setAllNodules(File csvFile, String csvSplitBy) {
+		Set<Nodule> nodules = new HashSet<>();
 		Nodule nodule;
 		Scanner scanner;
 
@@ -64,4 +62,5 @@ public class Main {
 
 		return nodules;
 	}
+
 }
