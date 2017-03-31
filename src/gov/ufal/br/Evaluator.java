@@ -12,6 +12,8 @@ public class Evaluator {
 	private Set<Nodule> aleatoryBenignNodules = new HashSet<>();
 	private Set<Nodule> allNodules;
 	private int qntEvaluatedNodules;
+	private int qntAllBenignNodules;
+	private int qntAllMalignantNodules;
 
 	public Evaluator(Set<Nodule> allNodules, int qntEvaluatedNodules) {
 		super();
@@ -95,16 +97,70 @@ public class Evaluator {
 
 		return averagePrecisionForAllNodules;
 	}
-	
-	public void setNearbyNodulesByAllFeatures(Set<Nodule> aleatoryNodules, Set<Nodule> allNodules, int qntRanking) {
-		for (Nodule nodule : aleatoryNodules) {
-			ListNearestNodules listNearestNodules = new ListNearestNodules(nodule, allNodules, Distances.EUCLIDIAN,
-					GroupFeaturesEnum.ALL_FEATURES, qntRanking);
-			nodule.setNearbyNodulesByAll(listNearestNodules);
-			//System.out.println(listNearestNodules.showNearbyNodules());
-			//System.out.println(listNearestNodules.getPrecision());
-		}	
+
+	public List<Double> setAverageRecallForAllNodules(Set<Nodule> aleatoryMalignantNodules) {
+		List<List<Double>> recallForAllNodules = new ArrayList<>();
+		List<Double> averageRecallForAllNodules = new ArrayList<>();
+		for (Nodule n : aleatoryMalignantNodules) {
+			recallForAllNodules.add(n.getNearbyNodulesByAll().getRecall());
+		}
+		List<Double> recallByNoduleRanking = new ArrayList<>();
+		for (int i = 0; i < aleatoryMalignantNodules.size(); i++) {
+			for (List<Double> recall : recallForAllNodules) {
+				recallByNoduleRanking.add(recall.get(i));
+			}
+			averageRecallForAllNodules.add(recallByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
+		}
+
+		return averageRecallForAllNodules;
+
 	}
 
+	public void setNearbyNodulesByAllFeatures(Set<Nodule> aleatoryNodules, Set<Nodule> allNodules, int qntRanking) {
+		for (Nodule nodule : aleatoryNodules) {
+			int qntAllNodulesByMalignance = isMalignant(nodule.getMalignance()) ? this.getQntAllMalignantNodules()
+					: this.getQntAllBenignNodules();
+			ListNearestNodules listNearestNodules = new ListNearestNodules(nodule, allNodules, Distances.EUCLIDIAN,
+					GroupFeaturesEnum.ALL_FEATURES, qntAllNodulesByMalignance, qntRanking);
+			nodule.setNearbyNodulesByAll(listNearestNodules);
+			// System.out.println(listNearestNodules.showNearbyNodules());
+			// System.out.println(listNearestNodules.getPrecision());
+		}
+	}
+
+	public boolean isMalignant(int malignance) {
+		if (malignance == 5 || malignance == 4) {
+			return true;
+		}
+		return false;
+	}
+
+	public int getQntAllBenignNodules() {
+		int qnt = 0;
+		Set<Nodule> nodules = this.getAllNodules();
+		int noduleMalignance;
+		for (Nodule n : nodules) {
+			noduleMalignance = n.getMalignance();
+			if (!isMalignant(noduleMalignance)) {
+				qnt++;
+			}
+		}
+		this.qntAllBenignNodules = qnt;
+		return qntAllBenignNodules;
+	}
+
+	public int getQntAllMalignantNodules() {
+		int qnt = 0;
+		Set<Nodule> nodules = this.getAllNodules();
+		int noduleMalignance;
+		for (Nodule n : nodules) {
+			noduleMalignance = n.getMalignance();
+			if (isMalignant(noduleMalignance)) {
+				qnt++;
+			}
+		}
+		this.qntAllMalignantNodules = qnt;
+		return qntAllMalignantNodules;
+	}
 
 }

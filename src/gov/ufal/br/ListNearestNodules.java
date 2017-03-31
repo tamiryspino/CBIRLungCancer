@@ -12,15 +12,17 @@ public class ListNearestNodules {
 	Nodule primaryNodule;
 	List<Nodule> nearbyNodules;
 	List<Double> precision;
+	List<Double> recall;
 	Double averagePrecision;
 
 	public ListNearestNodules(Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
-			GroupFeaturesEnum features, int qntRanking) {
+			GroupFeaturesEnum features, int qntAllNodulesByMalignance, int qntRanking) {
 		super();
 		this.primaryNodule = primaryNodule;
 		List<Nodule> listAllNodules = new ArrayList<>(allNodules);
 		setNearbyNodules(listAllNodules, distance, features, qntRanking);
 		this.setPrecision();
+		this.setRecall(qntAllNodulesByMalignance);
 		this.setAveragePrecision();
 	}
 
@@ -95,6 +97,27 @@ public class ListNearestNodules {
 
 	public void setAveragePrecision() {
 		this.averagePrecision = precision.stream().mapToDouble(a -> a).average().orElse(0);
+	}
+
+	public List<Double> getRecall() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public void setRecall(int qntAllNodulesByMalignance) {
+		List<Double> partialRecall = new ArrayList<>();
+		int qntAleatoryNodulesByMalignance = 0;
+		boolean primaryNoduleMalignance = isMalignant(primaryNodule.getMalignance());
+		boolean nearbyNoduleMalignance;
+		for (Nodule nodule : nearbyNodules) {
+			nearbyNoduleMalignance = isMalignant(nodule.getMalignance());
+			if (primaryNoduleMalignance == nearbyNoduleMalignance) {
+				qntAleatoryNodulesByMalignance++;
+			}
+			partialRecall.add((double) (qntAleatoryNodulesByMalignance) / qntAllNodulesByMalignance);
+		}
+		this.recall = partialRecall;
+
 	}
 
 }

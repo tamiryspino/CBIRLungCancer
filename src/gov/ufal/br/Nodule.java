@@ -10,7 +10,7 @@ public class Nodule {
 	int malignance;
 	ListNearestNodules nearbyNodulesByAll;
 	BigDecimal distance = new BigDecimal("0");
-	
+
 	public Nodule(String id, List<String> features, int malignance) {
 		super();
 		this.id = id;
@@ -25,7 +25,7 @@ public class Nodule {
 	public void setDistance(BigDecimal distance) {
 		this.distance = distance;
 	}
-	
+
 	public String getId() {
 		return id;
 	}
@@ -62,14 +62,13 @@ public class Nodule {
 	public String toString() {
 		return "Nodule [id=" + id + ", malignance=" + malignance + ", distance=" + distance + "] \n";
 	}
-	
-	public StringBuilder showNearbys(){
+
+	public StringBuilder showNearbys() {
 		StringBuilder str = new StringBuilder("--------------------- NEARBY NODULES ------------------------\n");
 		for (Nodule n : nearbyNodulesByAll.getNearbyNodules()) {
-				str.append(n.toString());
+			str.append(n.toString());
 		}
 		return str;
 	}
-	
-	
+
 }
