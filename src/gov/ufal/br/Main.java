@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
 
+import org.jfree.ui.RefineryUtilities;
+
 public class Main {
 
 	public static void main(String[] args) {
@@ -23,22 +25,34 @@ public class Main {
 		Evaluator evaluator = new Evaluator(allNodules, qntAleatoryNodules);
 		Set<Nodule> aleatoryBenignNodules = evaluator.getAleatoryBenignNodules();
 		Set<Nodule> aleatoryMalignantNodules = evaluator.getAleatoryMalignantNodules();
-				//System.err.println(evaluator.getAleatoryBenignNodules());
-
+		
 		System.out.println(qntAleatoryNodules + " nódulos aleatórios foram escolhidos!");
 		evaluator.setNearbyNodulesByAllFeatures(aleatoryBenignNodules, allNodules, qntRanking);
+		List<Double> averagePrecisionForBenignNodules = evaluator
+				.setAveragePrecisionForAllNodules(aleatoryBenignNodules);
 		evaluator.setNearbyNodulesByAllFeatures(aleatoryMalignantNodules, allNodules, qntRanking);
+		List<Double> averagePrecisionForMalignantNodules = evaluator
+				.setAveragePrecisionForAllNodules(aleatoryMalignantNodules);
 		System.out.println("Vizinhança dos nódulos foi adicionada pela menor distância euclidiana.");
 
-		List<Double> averagePrecisionForBenignNodules = evaluator
-				.setAveragePrecisionForAllNodules(evaluator.getAleatoryBenignNodules());
-		System.out.println("Lista da média das precisões para nódulos benignos: " + averagePrecisionForBenignNodules);
-		GraphPanel gp = new GraphPanel(averagePrecisionForBenignNodules);
-		gp.createAndShowGui("Precisão ("+qntAleatoryNodules/2+ ") para Nódulos Benignos", averagePrecisionForBenignNodules);
-		
 
+		System.out.println("Lista da média das precisões para nódulos benignos: " + averagePrecisionForBenignNodules);
+		XYLineChart_AWT benignChart = new XYLineChart_AWT(averagePrecisionForBenignNodules, "Precisão",
+				"Precisão (" + averagePrecisionForBenignNodules.size() + ") para Nódulos Benignos");
+		benignChart.pack();
+		RefineryUtilities.centerFrameOnScreen(benignChart);
+		benignChart.setVisible(true);
+
+		System.out
+				.println("Lista da média das precisões para nódulos malignos: " + averagePrecisionForMalignantNodules);
+
+		XYLineChart_AWT malignantChart = new XYLineChart_AWT(averagePrecisionForMalignantNodules, "Precisão",
+				"Precisão (" + averagePrecisionForMalignantNodules.size() + ") para Nódulos Malignos");
+		malignantChart.pack();
+		RefineryUtilities.centerFrameOnScreen(malignantChart);
+		malignantChart.setVisible(true);
 	}
-	
+
 	public static Set<Nodule> setAllNodules(File csvFile, String csvSplitBy) {
 		Set<Nodule> nodules = new HashSet<>();
 		Nodule nodule;

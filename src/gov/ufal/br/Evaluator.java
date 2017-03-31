@@ -20,7 +20,9 @@ public class Evaluator {
 	}
 
 	public Set<Nodule> getAleatoryMalignantNodules() {
-		return aleatoryMalignantNodules;
+		this.aleatoryMalignantNodules = setAleatoryNodules(4);
+		this.aleatoryMalignantNodules.addAll(setAleatoryNodules(5));
+		return this.aleatoryMalignantNodules;
 	}
 
 	public void setAleatoryBenignNodules(Set<Nodule> aleatoryBenignNodules) {
