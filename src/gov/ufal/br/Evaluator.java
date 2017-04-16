@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.annotation.processing.SupportedSourceVersion;
+
 import java.util.Random;
 
 public class Evaluator {
@@ -26,9 +29,11 @@ public class Evaluator {
 		this.aleatoryMalignantNodules.addAll(setAleatoryNodules(5));
 		return this.aleatoryMalignantNodules;
 	}
-
-	public void setAleatoryBenignNodules(Set<Nodule> aleatoryBenignNodules) {
-		this.aleatoryBenignNodules = aleatoryBenignNodules;
+	
+	public Set<Nodule> getAleatoryBenignNodules() {
+		this.aleatoryBenignNodules = setAleatoryNodules(1);
+		this.aleatoryBenignNodules.addAll(setAleatoryNodules(2));
+		return this.aleatoryBenignNodules;
 	}
 
 	public int getQntEvaluatedNodules() {
@@ -39,18 +44,6 @@ public class Evaluator {
 		this.qntEvaluatedNodules = qntEvaluatedNodules;
 	}
 
-	public Set<Nodule> setAleatoryMalignantNodules() {
-		this.aleatoryMalignantNodules = setAleatoryNodules(5);
-		this.aleatoryMalignantNodules.addAll(setAleatoryNodules(4));
-		return this.aleatoryMalignantNodules;
-	}
-
-	public Set<Nodule> getAleatoryBenignNodules() {
-		this.aleatoryBenignNodules = setAleatoryNodules(1);
-		this.aleatoryBenignNodules.addAll(setAleatoryNodules(2));
-		return this.aleatoryBenignNodules;
-	}
-
 	public Set<Nodule> setAleatoryNodules(int malignanceProbability) {
 
 		Random rnd;
@@ -59,7 +52,7 @@ public class Evaluator {
 		int n;
 		int noduleMalignance;
 		int qnt = qntEvaluatedNodules / 4;
-		for (int i = 0; i < qnt; i++) {
+		while (nodules.size() < qnt) {
 			noduleMalignance = 0;
 			while (malignanceProbability != noduleMalignance) {
 				rnd = new Random();
@@ -98,20 +91,19 @@ public class Evaluator {
 		return averagePrecisionForAllNodules;
 	}
 
-	public List<Double> setAverageRecallForAllNodules(Set<Nodule> aleatoryMalignantNodules) {
+	public List<Double> setAverageRecallForAllNodules(Set<Nodule> nodules) {
 		List<List<Double>> recallForAllNodules = new ArrayList<>();
 		List<Double> averageRecallForAllNodules = new ArrayList<>();
-		for (Nodule n : aleatoryMalignantNodules) {
+		for (Nodule n : nodules) {
 			recallForAllNodules.add(n.getNearbyNodulesByAll().getRecall());
 		}
 		List<Double> recallByNoduleRanking = new ArrayList<>();
-		for (int i = 0; i < aleatoryMalignantNodules.size(); i++) {
+		for (int i = 0; i < nodules.size(); i++) {
 			for (List<Double> recall : recallForAllNodules) {
 				recallByNoduleRanking.add(recall.get(i));
 			}
 			averageRecallForAllNodules.add(recallByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
 		}
-
 		return averageRecallForAllNodules;
 
 	}

@@ -14,9 +14,10 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		String nameFile = "/home/tamirysp/Documentos/TCC/tcc/nodulesFeaturesDavid.csv";
+		//String nameFile = "/home/tamirysp/Documentos/TCC/tcc/nodulesFeaturesDavid.csv";
+		String nameFile = "/home/tamirysp/Documentos/TCC/tcc/smallSolidNodulesFeatures.csv";
 		File csvFile = new File(nameFile);
-		String csvSplitBy = ",";
+		String csvSplitBy = ";";
 		Set<Nodule> allNodules = setAllNodules(csvFile, csvSplitBy);
 		int qntRanking = 10;
 		int qntAleatoryNodules = 20; // Cada 1/4 desses nódulos tera uma
@@ -27,10 +28,11 @@ public class Main {
 		Set<Nodule> aleatoryMalignantNodules = evaluator.getAleatoryMalignantNodules();
 		System.out.println(qntAleatoryNodules + " nódulos aleatórios foram escolhidos!");
 
-		evaluator.setNearbyNodulesByAllFeatures(aleatoryBenignNodules, allNodules, qntRanking);
+		evaluator.setNearbyNodulesByAllFeatures(aleatoryBenignNodules, allNodules, qntRanking);		
 		List<Double> averagePrecisionForBenignNodules = evaluator
 				.setAveragePrecisionForAllNodules(aleatoryBenignNodules);
 		List<Double> averageRecallForBenignNodules = evaluator.setAverageRecallForAllNodules(aleatoryBenignNodules);
+		//System.out.println("Precisao: " + averagePrecisionForBenignNodules.size() + " Recall: " + averageRecallForBenignNodules.size());
 
 		evaluator.setNearbyNodulesByAllFeatures(aleatoryMalignantNodules, allNodules, qntRanking);
 		List<Double> averagePrecisionForMalignantNodules = evaluator
@@ -47,26 +49,25 @@ public class Main {
 		RefineryUtilities.centerFrameOnScreen(benignPrecisionChart);
 		benignPrecisionChart.setVisible(true);
 
-		System.out.println("Lista da média das revocações para nódulos benignos: " + averageRecallForBenignNodules);
-		XYLineChart_AWT benignRecallChart = new XYLineChart_AWT(averageRecallForBenignNodules, "Revocaçao",
-				"Revocação (" + averagePrecisionForBenignNodules.size() + ") para Nódulos Benignos");
-		benignRecallChart.pack();
-		RefineryUtilities.centerFrameOnScreen(benignRecallChart);
-		benignRecallChart.setVisible(true);
-
 		System.out
-				.println("Lista da média das precisões para nódulos malignos: " + averagePrecisionForMalignantNodules);
-
+		.println("Lista da média das precisões para nódulos malignos: " + averagePrecisionForMalignantNodules);		
 		XYLineChart_AWT malignantPrecisionChart = new XYLineChart_AWT(averagePrecisionForMalignantNodules, "Precisão",
 				"Precisão (" + averagePrecisionForMalignantNodules.size() + ") para Nódulos Malignos");
 		malignantPrecisionChart.pack();
 		RefineryUtilities.centerFrameOnScreen(malignantPrecisionChart);
 		malignantPrecisionChart.setVisible(true);
+		
+		System.out.println("Lista da média das revocações para nódulos benignos: " + averageRecallForBenignNodules);
+		XYLineChart_AWT benignPrecisionVsRecallChart = new XYLineChart_AWT(averagePrecisionForBenignNodules, averageRecallForBenignNodules, "Revocação",
+				"Revocação (" + averageRecallForBenignNodules.size() + ") para Nódulos Benignos");
+		benignPrecisionVsRecallChart.pack();
+		RefineryUtilities.centerFrameOnScreen(benignPrecisionVsRecallChart);
+		benignPrecisionVsRecallChart.setVisible(true);
 
 		System.out
-				.println("Lista da média das revocaçoes para nódulos malignos: " + averagePrecisionForMalignantNodules);
+				.println("Lista da média das revocações para nódulos malignos: " + averageRecallForMalignantNodules);
 
-		XYLineChart_AWT malignantRecallChart = new XYLineChart_AWT(averageRecallForMalignantNodules, "Revocação",
+		XYLineChart_AWT malignantRecallChart = new XYLineChart_AWT(averagePrecisionForBenignNodules, averageRecallForMalignantNodules, "Revocação",
 				"Revocação (" + averageRecallForMalignantNodules.size() + ") para Nódulos Malignos");
 		malignantRecallChart.pack();
 		RefineryUtilities.centerFrameOnScreen(malignantRecallChart);
@@ -83,9 +84,9 @@ public class Main {
 			scanner.nextLine(); // Pula o cabeçalho do arquivo
 			while (scanner.hasNext()) {
 				List<String> features = Arrays.asList(scanner.nextLine().split(csvSplitBy));
-				nodule = new Nodule(features.get(features.size() - 1), // ID
-						features.subList(0, features.size() - 3), // Features
-						Integer.parseInt(features.get(features.size() - 2))); // Malignance
+				nodule = new Nodule(features.get(features.size() - 2), // ID
+						features.subList(0, features.size() - 5), // Features
+						Integer.parseInt((features.get(features.size() - 3)).replace(".0", ""))); // Malignance
 				nodules.add(nodule);
 			}
 			scanner.close();

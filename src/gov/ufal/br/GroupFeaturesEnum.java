@@ -8,7 +8,8 @@ public enum GroupFeaturesEnum {
 	NODULE_SHAPE(28,36),
 	NODULE_TEXTURE(37, 72),
 	PARENCHYMA_TEXTURE(73, 108),
-	EDGE_SHARPNESS(109, 120);
+	EDGE_SHARPNESS(109, 120),
+	MALIGNANCE(122, 123);
 	
 	int inicialIndex;
 	int finalIndex;

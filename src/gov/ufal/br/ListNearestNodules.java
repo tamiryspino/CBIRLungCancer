@@ -40,7 +40,7 @@ public class ListNearestNodules {
 
 	public void setNearbyNodules(List<Nodule> nearbyNodules, Distances distanceFormula, GroupFeaturesEnum features,
 			int qntRanking) {
-		BigDecimal distance = new BigDecimal("0");
+		BigDecimal distance = new BigDecimal("0.0");
 		for (Nodule nodule : nearbyNodules) {
 			if (distanceFormula == Distances.EUCLIDIAN) {
 				distance = Operations.euclidianDistance(primaryNodule, nodule, features);
@@ -100,8 +100,7 @@ public class ListNearestNodules {
 	}
 
 	public List<Double> getRecall() {
-		// TODO Auto-generated method stub
-		return null;
+		return recall;
 	}
 
 	public void setRecall(int qntAllNodulesByMalignance) {

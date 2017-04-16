@@ -3,6 +3,8 @@ package gov.ufal.br;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 public class Operations {
 	
@@ -32,5 +34,26 @@ public class Operations {
 		}
 
 		return sqrt(sumFeaturesDifs);
+	}
+	
+	public Double sum(List<Double> elements) {
+		return elements.stream().collect(Collectors.summingDouble(d -> d));
+	}
+	
+	public Double arithmeticMean(List<Double> elements) {
+		int n = elements.size();
+		return (1/n)*sum(elements);
+	}
+	
+	public Double sampleVariance(List<Double> elements) {
+		int n = elements.size();
+		Double am = arithmeticMean(elements);
+		return IntStream.range(0, n)
+	             .mapToDouble(i -> (elements.get(i) + am)*(elements.get(i) + am))
+	             .sum();
+	}
+	
+	public Double standardDeviation(Double sampleVariance) {
+		return Math.sqrt(sampleVariance);
 	}
 }
