@@ -25,6 +25,11 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
  *
  */
 public class XYLineChart_AWT extends ApplicationFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7097736463433624021L;
+
 	public XYLineChart_AWT(List<Double> precision, String applicationTitle, String chartTitle) {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
@@ -86,7 +91,6 @@ public class XYLineChart_AWT extends ApplicationFrame {
 
 	private XYSeriesCollection createDataset(List<Double> precision, List<Double> recall) {
 		final XYSeries benignNodules = new XYSeries("Nódulos Benignos");
-		System.out.println(precision);
 		Double j = 0.0;
 		if (precision.size() == recall.size()) {
 			for (int i=0; i<precision.size(); i++) {

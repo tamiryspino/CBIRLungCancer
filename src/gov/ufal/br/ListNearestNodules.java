@@ -16,7 +16,7 @@ public class ListNearestNodules {
 	Double averagePrecision;
 
 	public ListNearestNodules(Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
-			GroupFeaturesEnum features, int qntAllNodulesByMalignance, int qntRanking) {
+			List<GroupFeaturesEnum> features, int qntAllNodulesByMalignance, int qntRanking) {
 		super();
 		this.primaryNodule = primaryNodule;
 		List<Nodule> listAllNodules = new ArrayList<>(allNodules);
@@ -38,14 +38,14 @@ public class ListNearestNodules {
 		return nearbyNodules;
 	}
 
-	public void setNearbyNodules(List<Nodule> nearbyNodules, Distances distanceFormula, GroupFeaturesEnum features,
+	public void setNearbyNodules(List<Nodule> nearbyNodules, Distances distanceFormula, List<GroupFeaturesEnum> features,
 			int qntRanking) {
 		BigDecimal distance = new BigDecimal("0.0");
 		for (Nodule nodule : nearbyNodules) {
 			if (distanceFormula == Distances.EUCLIDIAN) {
 				distance = Operations.euclidianDistance(primaryNodule, nodule, features);
 			}
-			// } else if (distanceFormula == Distances.)
+			//TODO else if (distanceFormula == Distances.)
 			nodule.setDistance(distance);
 		}
 		Collections.sort(nearbyNodules, Comparator.comparing(Nodule::getDistance));

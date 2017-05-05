@@ -76,8 +76,9 @@ public class Evaluator {
 	public List<Double> setAveragePrecisionForAllNodules(Set<Nodule> nodules) {
 		List<List<Double>> precisionForAllNodules = new ArrayList<>();
 		List<Double> averagePrecisionForAllNodules = new ArrayList<>();
+		//TODO get(0) deverá ser get(listNearestNodules) para cada um da lista
 		for (Nodule n : nodules) {
-			precisionForAllNodules.add(n.getNearbyNodulesByAll().getPrecision());
+			precisionForAllNodules.add(n.getNearbyNodules().get(0).getPrecision());
 		}
 		List<Double> precisionByNoduleRanking = new ArrayList<>();
 		for (int i = 0; i < nodules.size(); i++) {
@@ -94,8 +95,9 @@ public class Evaluator {
 	public List<Double> setAverageRecallForAllNodules(Set<Nodule> nodules) {
 		List<List<Double>> recallForAllNodules = new ArrayList<>();
 		List<Double> averageRecallForAllNodules = new ArrayList<>();
+		//TODO get(0) deverá ser listNearestNodules para cada um da lista
 		for (Nodule n : nodules) {
-			recallForAllNodules.add(n.getNearbyNodulesByAll().getRecall());
+			recallForAllNodules.add(n.getNearbyNodules().get(0).getRecall());
 		}
 		List<Double> recallByNoduleRanking = new ArrayList<>();
 		for (int i = 0; i < nodules.size(); i++) {
@@ -112,9 +114,23 @@ public class Evaluator {
 		for (Nodule nodule : aleatoryNodules) {
 			int qntAllNodulesByMalignance = isMalignant(nodule.getMalignance()) ? this.getQntAllMalignantNodules()
 					: this.getQntAllBenignNodules();
+			List<GroupFeaturesEnum> features = new ArrayList<>();
+			features.add(GroupFeaturesEnum.ALL_FEATURES);
 			ListNearestNodules listNearestNodules = new ListNearestNodules(nodule, allNodules, Distances.EUCLIDIAN,
-					GroupFeaturesEnum.ALL_FEATURES, qntAllNodulesByMalignance, qntRanking);
-			nodule.setNearbyNodulesByAll(listNearestNodules);
+					features, qntAllNodulesByMalignance, qntRanking);
+			nodule.addListNearestNodules(listNearestNodules);
+			// System.out.println(listNearestNodules.showNearbyNodules());
+			// System.out.println(listNearestNodules.getPrecision());
+		}
+	}
+	
+	public void setNearbyNodulesByFeatures(List<GroupFeaturesEnum> features, Distances distanceType, Set<Nodule> aleatoryNodules, Set<Nodule> allNodules, int qntRanking) {
+		for (Nodule nodule : aleatoryNodules) {
+			int qntAllNodulesByMalignance = isMalignant(nodule.getMalignance()) ? this.getQntAllMalignantNodules()
+					: this.getQntAllBenignNodules();
+			ListNearestNodules listNearestNodules = new ListNearestNodules(nodule, allNodules, distanceType,
+					features, qntAllNodulesByMalignance, qntRanking);
+			nodule.addListNearestNodules(listNearestNodules);
 			// System.out.println(listNearestNodules.showNearbyNodules());
 			// System.out.println(listNearestNodules.getPrecision());
 		}
