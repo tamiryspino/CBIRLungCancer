@@ -9,20 +9,22 @@ import java.util.Set;
 
 public class ListNearestNodules {
 
+	String identification;
 	Nodule primaryNodule;
 	List<Nodule> nearbyNodules;
 	List<Double> precision;
 	List<Double> recall;
 	Double averagePrecision;
 
-	public ListNearestNodules(Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
+	public ListNearestNodules(String identification, Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
 			List<GroupFeaturesEnum> features, int qntAllNodulesByMalignance, int qntRanking) {
 		super();
+		this.identification = identification;
 		this.primaryNodule = primaryNodule;
 		List<Nodule> listAllNodules = new ArrayList<>(allNodules);
 		setNearbyNodules(listAllNodules, distance, features, qntRanking);
 		this.setPrecision();
-		this.setRecall(qntAllNodulesByMalignance);
+		this.setRecall();
 		this.setAveragePrecision();
 	}
 
@@ -70,8 +72,6 @@ public class ListNearestNodules {
 			if (primaryNoduleMalignance == nearbyNoduleMalignance) {
 				sumMalignances++;
 			}
-			// System.out.println(sumMalignances + "/" + noduleQnt + " = " +
-			// sumMalignances/noduleQnt);
 			partialPrecision.add(sumMalignances / noduleQnt);
 		}
 		this.precision = partialPrecision;
@@ -98,16 +98,24 @@ public class ListNearestNodules {
 	public void setAveragePrecision() {
 		this.averagePrecision = precision.stream().mapToDouble(a -> a).average().orElse(0);
 	}
+	
+	public void setIdentification(String identification) {
+		this.identification = identification;
+	}
 
+	public String getIdentification() {
+		return identification;
+	}
 	public List<Double> getRecall() {
 		return recall;
 	}
 
-	public void setRecall(int qntAllNodulesByMalignance) {
+	public void setRecall() {
 		List<Double> partialRecall = new ArrayList<>();
 		int qntAleatoryNodulesByMalignance = 0;
 		boolean primaryNoduleMalignance = isMalignant(primaryNodule.getMalignance());
 		boolean nearbyNoduleMalignance;
+		int qntAllNodulesByMalignance = nearbyNodules.size() + 1;
 		for (Nodule nodule : nearbyNodules) {
 			nearbyNoduleMalignance = isMalignant(nodule.getMalignance());
 			if (primaryNoduleMalignance == nearbyNoduleMalignance) {
@@ -115,6 +123,9 @@ public class ListNearestNodules {
 			}
 			partialRecall.add((double) (qntAleatoryNodulesByMalignance) / qntAllNodulesByMalignance);
 		}
+		System.out.println("PRECISÂO: " + this.getPrecision());
+		System.out.println("PARCIAL RECALL: " + partialRecall);
+		System.out.println(" qntAllNodules: " + qntAllNodulesByMalignance);
 		this.recall = partialRecall;
 
 	}

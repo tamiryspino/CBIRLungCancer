@@ -3,6 +3,7 @@ package gov.ufal.br;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.processing.SupportedSourceVersion;
@@ -17,6 +18,7 @@ public class Evaluator {
 	private int qntEvaluatedNodules;
 	private int qntAllBenignNodules;
 	private int qntAllMalignantNodules;
+	Map<String, List<Double>> averageRankingPrecisionByFeature;
 
 	public Evaluator(Set<Nodule> allNodules, int qntEvaluatedNodules) {
 		super();
@@ -73,20 +75,39 @@ public class Evaluator {
 		this.allNodules = allNodules;
 	}
 
-	public List<Double> setAveragePrecisionForAllNodules(Set<Nodule> nodules) {
+	/** Para cada nódulo dos n nódulos aleatórios escolhidos,
+	 * cálcula para cada lista de nódulos vizinhos (definidos por features)
+	 * a média das precisões por ranking dos m nódulos vizinhos
+	 **/
+	public List<Double> setAveragePrecisionByNoduleRanking(Set<Nodule> nodules) {
 		List<List<Double>> precisionForAllNodules = new ArrayList<>();
 		List<Double> averagePrecisionForAllNodules = new ArrayList<>();
-		//TODO get(0) deverá ser get(listNearestNodules) para cada um da lista
+		int qntListNearestNodulesByFeature = 0;
+		//Segurança para que a lista de nódulos vizinhos sejam da mesma feature
+		Set<String> identification = new HashSet<>();
+		//TODO get(0) deverá ser get(listNearestNodules) para cada um da lista	
 		for (Nodule n : nodules) {
-			precisionForAllNodules.add(n.getNearbyNodules().get(0).getPrecision());
+			qntListNearestNodulesByFeature = n.getNearbyNodules().size();
 		}
-		List<Double> precisionByNoduleRanking = new ArrayList<>();
-		for (int i = 0; i < nodules.size(); i++) {
-			for (List<Double> precision : precisionForAllNodules) {
-				precisionByNoduleRanking.add(precision.get(i));
+		for (int j = 0; j< qntListNearestNodulesByFeature; j++){
+			for(Nodule n : nodules) {
+				precisionForAllNodules.add(n.getNearbyNodules().get(j).getPrecision());
+				identification.add(n.getNearbyNodules().get(j).getIdentification());
 			}
-			averagePrecisionForAllNodules
-					.add(precisionByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
+			List<Double> precisionByNoduleRanking = new ArrayList<>();
+			for (int i = 0; i < nodules.size(); i++) {
+				for (List<Double> precision : precisionForAllNodules) {
+					precisionByNoduleRanking.add(precision.get(i));
+				}
+				averagePrecisionForAllNodules
+				.add(precisionByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
+			}
+			if (identification.size() != 1) {
+				System.err.println("Lista de nódulos vizinhos não confere");
+			}
+			else {
+				this.averageRankingPrecisionByFeature.put(identification.toString(), averagePrecisionForAllNodules);
+			}
 		}
 
 		return averagePrecisionForAllNodules;
@@ -109,7 +130,7 @@ public class Evaluator {
 		return averageRecallForAllNodules;
 
 	}
-
+/*
 	public void setNearbyNodulesByAllFeatures(Set<Nodule> aleatoryNodules, Set<Nodule> allNodules, int qntRanking) {
 		for (Nodule nodule : aleatoryNodules) {
 			int qntAllNodulesByMalignance = isMalignant(nodule.getMalignance()) ? this.getQntAllMalignantNodules()
@@ -122,18 +143,46 @@ public class Evaluator {
 			// System.out.println(listNearestNodules.showNearbyNodules());
 			// System.out.println(listNearestNodules.getPrecision());
 		}
-	}
+	}*/
 	
+	/** Cria uma lista de nódulos vizinhos para cada feature 
+	 * e uma lista de nódulos vizinhos com as features integradas (caso haja mais de uma feature) **/
 	public void setNearbyNodulesByFeatures(List<GroupFeaturesEnum> features, Distances distanceType, Set<Nodule> aleatoryNodules, Set<Nodule> allNodules, int qntRanking) {
 		for (Nodule nodule : aleatoryNodules) {
 			int qntAllNodulesByMalignance = isMalignant(nodule.getMalignance()) ? this.getQntAllMalignantNodules()
 					: this.getQntAllBenignNodules();
-			ListNearestNodules listNearestNodules = new ListNearestNodules(nodule, allNodules, distanceType,
+			String identification = "";
+			for(GroupFeaturesEnum feature : features) {
+				identification = feature.getFeatureName();
+				ListNearestNodules listNearestNodulesByFeature = new ListNearestNodules(identification, nodule, allNodules, distanceType,
+						features, qntAllNodulesByMalignance, qntRanking);
+				nodule.addListNearestNodules(listNearestNodulesByFeature);		
+			}
+			
+			//Lista de nódulos vizinhos para features integradas
+			if(features.size() > 1) {
+				identification = getFeaturesNames(features);
+				ListNearestNodules listNearestNodulesByIntegratedFeatures = new ListNearestNodules(identification, nodule, allNodules, distanceType,
 					features, qntAllNodulesByMalignance, qntRanking);
-			nodule.addListNearestNodules(listNearestNodules);
-			// System.out.println(listNearestNodules.showNearbyNodules());
-			// System.out.println(listNearestNodules.getPrecision());
+				nodule.addListNearestNodules(listNearestNodulesByIntegratedFeatures);
+			}
 		}
+	}
+
+	private String getFeaturesNames(List<GroupFeaturesEnum> features) {
+		String featuresNames = "";
+		for(int i = 0; i < features.size(); i++) {
+			featuresNames += features.get(i).getFeatureName();
+			if (i == features.size()-1 && features.size() > 1) {
+				featuresNames += " e ";
+			} else if (features.size() > 1) {
+				featuresNames += ", ";
+			}
+		}
+		if(features.size() > 1) {
+			featuresNames += " integrados";
+		}
+		return featuresNames;
 	}
 
 	public boolean isMalignant(int malignance) {

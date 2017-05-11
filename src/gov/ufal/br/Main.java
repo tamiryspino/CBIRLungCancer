@@ -2,6 +2,7 @@ package gov.ufal.br;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -27,58 +28,50 @@ public class Main {
 		Set<Nodule> aleatoryBenignNodules = evaluator.getAleatoryBenignNodules();
 		Set<Nodule> aleatoryMalignantNodules = evaluator.getAleatoryMalignantNodules();
 		System.out.println(qntAleatoryNodules + " nódulos aleatórios foram escolhidos!");
-
-		evaluator.setNearbyNodulesByAllFeatures(aleatoryBenignNodules, allNodules, qntRanking);		
-		List<Double> averagePrecisionForBenignNodules = evaluator
-				.setAveragePrecisionForAllNodules(aleatoryBenignNodules);
-		List<Double> averageRecallForBenignNodules = evaluator.setAverageRecallForAllNodules(aleatoryBenignNodules);
-		Double precisionMeanForBenignNodules = averagePrecisionForBenignNodules.stream().mapToDouble(a -> a).average().orElse(0);
-		Double standardDeviationForBeniggnNodules = Operations.standardDeviation(averagePrecisionForBenignNodules);
-		System.err.println("Precisão média para nódulos benignos: " + precisionMeanForBenignNodules + " +- " + standardDeviationForBeniggnNodules);
-		//System.out.println("Precisao: " + averagePrecisionForBenignNodules.size() + " Recall: " + averageRecallForBenignNodules.size());
-
-		evaluator.setNearbyNodulesByAllFeatures(aleatoryMalignantNodules, allNodules, qntRanking);
-		List<Double> averagePrecisionForMalignantNodules = evaluator
-				.setAveragePrecisionForAllNodules(aleatoryMalignantNodules);
-		List<Double> averageRecallForMalignantNodules = evaluator
-				.setAverageRecallForAllNodules(aleatoryMalignantNodules);
 		
-		Double precisionMeanForMalignantNodules = averagePrecisionForMalignantNodules.stream().mapToDouble(a -> a).average().orElse(0);
-		Double standardDeviationForMalignantNodules = Operations.standardDeviation(averagePrecisionForMalignantNodules);
+		List<GroupFeaturesEnum> listOfFeatures = new ArrayList<>();
+		listOfFeatures.add(GroupFeaturesEnum.ALL_FEATURES);
+		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryBenignNodules, allNodules, qntRanking, "Benignos");
+		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryMalignantNodules, allNodules, qntRanking, "Malignos");
 		
-		System.err.println("Precisão média para nódulos malignos: " + precisionMeanForMalignantNodules + " +- " + standardDeviationForMalignantNodules);
-
+		listOfFeatures.clear();
+		listOfFeatures.add(GroupFeaturesEnum.NODULE_TEXTURE);
+		listOfFeatures.add(GroupFeaturesEnum.NODULE_SHAPE);
+		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryBenignNodules, allNodules, qntRanking, "Benignos");
+		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryMalignantNodules, allNodules, qntRanking, "Malignos");
+		
+		
+		
 		System.out.println("Vizinhança dos nódulos foi adicionada pela menor distância euclidiana.");
-
-		//System.out.println("Lista da média das precisões para nódulos benignos: " + averagePrecisionForBenignNodules);
-		XYLineChart_AWT benignPrecisionChart = new XYLineChart_AWT(averagePrecisionForBenignNodules, "Precisão",
-				"Precisão (" + averagePrecisionForBenignNodules.size() + ") para Nódulos Benignos");
-		benignPrecisionChart.pack();
-		RefineryUtilities.centerFrameOnScreen(benignPrecisionChart);
-		benignPrecisionChart.setVisible(true);
-
-		//System.out.println("Lista da média das precisões para nódulos malignos: " + averagePrecisionForMalignantNodules);		
-		XYLineChart_AWT malignantPrecisionChart = new XYLineChart_AWT(averagePrecisionForMalignantNodules, "Precisão",
-				"Precisão (" + averagePrecisionForMalignantNodules.size() + ") para Nódulos Malignos");
-		malignantPrecisionChart.pack();
-		RefineryUtilities.centerFrameOnScreen(malignantPrecisionChart);
-		malignantPrecisionChart.setVisible(true);
+	}
+	
+	private static void setNearbyNodules(Evaluator evaluator, List<GroupFeaturesEnum> listOfFeatures, Distances distanceFormula,
+			Set<Nodule> aleatoryNodules, Set<Nodule> allNodules, int qntRanking, String malignance) {
+		evaluator.setNearbyNodulesByFeatures(listOfFeatures, distanceFormula, aleatoryNodules, allNodules, qntRanking);		
+		List<Double> averagePrecision = evaluator.setAveragePrecisionByNoduleRanking(aleatoryNodules);
+		List<Double> averageRecall = evaluator.setAverageRecallForAllNodules(aleatoryNodules);
+		Double precisionMeanForNodules = averagePrecision.stream().mapToDouble(a -> a).average().orElse(0);
+		Double standardDeviationForNodules = Operations.standardDeviation(averagePrecision);
+		System.err.println("Precisão média para Nódulos "+ malignance +" " + precisionMeanForNodules + " +- " + standardDeviationForNodules);
 		
-		/*//System.out.println("Lista da média das revocações para nódulos benignos: " + averageRecallForBenignNodules);
-		XYLineChart_AWT benignPrecisionVsRecallChart = new XYLineChart_AWT(averagePrecisionForBenignNodules, averageRecallForBenignNodules, "Revocação",
-				"Revocação (" + averageRecallForBenignNodules.size() + ") para Nódulos Benignos");
-		benignPrecisionVsRecallChart.pack();
-		RefineryUtilities.centerFrameOnScreen(benignPrecisionVsRecallChart);
-		benignPrecisionVsRecallChart.setVisible(true);
+		doPrecisionNChart(averagePrecision, malignance);
+		doPrecisionVsRecallChart(averagePrecision, averageRecall, malignance);
+	}
 
-		//System.out.println("Lista da média das revocações para nódulos malignos: " + averageRecallForMalignantNodules);
-
-		XYLineChart_AWT malignantRecallChart = new XYLineChart_AWT(averagePrecisionForBenignNodules, averageRecallForMalignantNodules, "Revocação",
-				"Revocação (" + averageRecallForMalignantNodules.size() + ") para Nódulos Malignos");
-		malignantRecallChart.pack();
-		RefineryUtilities.centerFrameOnScreen(malignantRecallChart);
-		malignantRecallChart.setVisible(true);
-		*/
+	public static void doPrecisionNChart(List<Double> averagePrecision, String malignance){
+		XYLineChart_AWT precisionChart = new XYLineChart_AWT(averagePrecision, "Precisão",
+				"Precisão (" + averagePrecision.size() + ") para Nódulos " + malignance, malignance);
+		precisionChart.pack();
+		RefineryUtilities.centerFrameOnScreen(precisionChart);
+		precisionChart.setVisible(true);
+	}
+	
+	public static void doPrecisionVsRecallChart(List <Double> averagePrecision, List<Double> averageRecall, String malignance) {
+		XYLineChart_AWT precisionVsRecallChart = new XYLineChart_AWT(averagePrecision, averageRecall, "Precisão vs Revocação",
+				"Revocação (" + averageRecall.size() + ") para Nódulos " + malignance, malignance);
+		precisionVsRecallChart.pack();
+		RefineryUtilities.centerFrameOnScreen(precisionVsRecallChart);
+		precisionVsRecallChart.setVisible(true);
 	}
 
 	public static Set<Nodule> setAllNodules(File csvFile, String csvSplitBy) {

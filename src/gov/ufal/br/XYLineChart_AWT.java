@@ -30,10 +30,10 @@ public class XYLineChart_AWT extends ApplicationFrame {
 	 */
 	private static final long serialVersionUID = 7097736463433624021L;
 
-	public XYLineChart_AWT(List<Double> precision, String applicationTitle, String chartTitle) {
+	public XYLineChart_AWT(List<Double> precision, String applicationTitle, String chartTitle, String featureName) {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
-				createDataset(precision), PlotOrientation.VERTICAL, true, true, false);
+				createDataset(precision, featureName), PlotOrientation.VERTICAL, true, true, false);
 
 		ChartPanel chartPanel = new ChartPanel(xylineChart);
 		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
@@ -43,13 +43,9 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		plot.setBackgroundPaint(Color.white);
 		plot.setDomainGridlinePaint(Color.black);
 		plot.setRangeGridlinePaint(Color.BLACK);
-		/*
-		 * renderer.setSeriesPaint(1, Color.GREEN); renderer.setSeriesPaint(2,
-		 * Color.YELLOW);
-		 */
+		
 		renderer.setSeriesStroke(0, new BasicStroke(.1f));
-		// renderer.setSeriesStroke(1, new BasicStroke(3.0f));
-		// renderer.setSeriesStroke(2, new BasicStroke(2.0f));
+		
 		plot.setRenderer(renderer);
 		NumberAxis range = (NumberAxis) plot.getRangeAxis();
 		range.setRange(precision.get(precision.size()-1)-0.05, precision.get(0)+0.05);
@@ -59,10 +55,10 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		setContentPane(chartPanel);
 	}
 
-	public XYLineChart_AWT(List<Double> precision, List<Double> recall, String applicationTitle, String chartTitle) {
+	public XYLineChart_AWT(List<Double> precision, List<Double> recall, String applicationTitle, String chartTitle, String malignance) {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
-				createDataset(precision, recall), PlotOrientation.VERTICAL, true, true, false);
+				createDataset(precision, recall, malignance), PlotOrientation.VERTICAL, true, true, false);
 
 		ChartPanel chartPanel = new ChartPanel(xylineChart);
 		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
@@ -72,13 +68,8 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		plot.setBackgroundPaint(Color.white);
 		plot.setDomainGridlinePaint(Color.black);
 		plot.setRangeGridlinePaint(Color.BLACK);
-		/*
-		 * renderer.setSeriesPaint(1, Color.GREEN); renderer.setSeriesPaint(2,
-		 * Color.YELLOW);
-		 */
+		
 		renderer.setSeriesStroke(0, new BasicStroke(.5f));
-		// renderer.setSeriesStroke(1, new BasicStroke(3.0f));
-		// renderer.setSeriesStroke(2, new BasicStroke(2.0f));
 		plot.setRenderer(renderer);
 		NumberAxis range = (NumberAxis) plot.getRangeAxis();
 		range.setRange(0.3, 1.1);
@@ -89,48 +80,33 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		setContentPane(chartPanel);
 	}
 
-	private XYSeriesCollection createDataset(List<Double> precision, List<Double> recall) {
-		final XYSeries benignNodules = new XYSeries("Nódulos Benignos");
+	private XYSeriesCollection createDataset(List<Double> precision, List<Double> recall, String subtitle) {
+		final XYSeries nodules = new XYSeries(subtitle);
 		Double j = 0.0;
 		if (precision.size() == recall.size()) {
 			for (int i=0; i<precision.size(); i++) {
-				benignNodules.add(j, precision.get(i));
+				nodules.add(j, precision.get(i));
 				j+=0.1;
 			}
 		}
 
-		/*
-		 * final XYSeries chrome = new XYSeries("Chrome"); chrome.add(1.0, 4.0);
-		 * chrome.add(2.0, 5.0); chrome.add(3.0, 6.0); final XYSeries iexplorer
-		 * = new XYSeries("InternetExplorer"); iexplorer.add(3.0, 4.0);
-		 * iexplorer.add(4.0, 5.0); iexplorer.add(5.0, 4.0);
-		 */
 		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(benignNodules);
-		/*
-		 * dataset.addSeries(chrome); dataset.addSeries(iexplorer);
-		 */
+		dataset.addSeries(nodules);
+		
 		return dataset;
 	}
 
-	private XYSeriesCollection createDataset(List<Double> precision) {
-		final XYSeries benignNodules = new XYSeries("Nódulos Benignos");
+	private XYSeriesCollection createDataset(List<Double> precision, String subtitle) {
+		final XYSeries nodules = new XYSeries(subtitle);
 		int i = 0;
 		for (Double p : precision) {
-			benignNodules.add(i, p);
+			nodules.add(i, p);
 			i++;
 		}
-		/*
-		 * final XYSeries chrome = new XYSeries("Chrome"); chrome.add(1.0, 4.0);
-		 * chrome.add(2.0, 5.0); chrome.add(3.0, 6.0); final XYSeries iexplorer
-		 * = new XYSeries("InternetExplorer"); iexplorer.add(3.0, 4.0);
-		 * iexplorer.add(4.0, 5.0); iexplorer.add(5.0, 4.0);
-		 */
+		
 		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(benignNodules);
-		/*
-		 * dataset.addSeries(chrome); dataset.addSeries(iexplorer);
-		 */
+		dataset.addSeries(nodules);
+		
 		return dataset;
 	}
 
