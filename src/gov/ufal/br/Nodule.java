@@ -65,14 +65,6 @@ public class Nodule {
 	public String toString() {
 		return "Nodule [id=" + id + ", malignance=" + malignance + ", distance=" + distance + "] \n";
 	}
-	/*
-	public StringBuilder showNearbys(){
-		StringBuilder str = new StringBuilder("--------------------- NEARBY NODULES ------------------------\n");
-		for (Nodule n : nearbyNodulesByAll.getNearbyNodules()) {
-				str.append(n.toString());
-		}
-		return str;
-	}*/
 
 	public void addListNearestNodules(ListNearestNodules listNearestNodules) {
 		this.nearbyNodules.add(listNearestNodules);

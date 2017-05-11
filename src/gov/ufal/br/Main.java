@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -37,6 +38,7 @@ public class Main {
 		listOfFeatures.clear();
 		listOfFeatures.add(GroupFeaturesEnum.NODULE_TEXTURE);
 		listOfFeatures.add(GroupFeaturesEnum.NODULE_SHAPE);
+		System.out.println("OK!");
 		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryBenignNodules, allNodules, qntRanking, "Benignos");
 		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryMalignantNodules, allNodules, qntRanking, "Malignos");
 		
@@ -48,17 +50,18 @@ public class Main {
 	private static void setNearbyNodules(Evaluator evaluator, List<GroupFeaturesEnum> listOfFeatures, Distances distanceFormula,
 			Set<Nodule> aleatoryNodules, Set<Nodule> allNodules, int qntRanking, String malignance) {
 		evaluator.setNearbyNodulesByFeatures(listOfFeatures, distanceFormula, aleatoryNodules, allNodules, qntRanking);		
-		List<Double> averagePrecision = evaluator.setAveragePrecisionByNoduleRanking(aleatoryNodules);
-		List<Double> averageRecall = evaluator.setAverageRecallForAllNodules(aleatoryNodules);
-		Double precisionMeanForNodules = averagePrecision.stream().mapToDouble(a -> a).average().orElse(0);
-		Double standardDeviationForNodules = Operations.standardDeviation(averagePrecision);
-		System.err.println("Precisão média para Nódulos "+ malignance +" " + precisionMeanForNodules + " +- " + standardDeviationForNodules);
-		
-		doPrecisionNChart(averagePrecision, malignance);
-		doPrecisionVsRecallChart(averagePrecision, averageRecall, malignance);
+		evaluator.setAveragePrecisionByNoduleRanking(aleatoryNodules);
+		evaluator.setAverageRecallForAllNodules(aleatoryNodules);
+		/*Double precisionMeanForNodules = evaluator.getAverageRankingPrecisionByFeature().values().stream().mapToDouble(a -> a).average().orElse(0);
+		Double standardDeviationForNodules = Operations.standardDeviation(evaluator.getAverageRankingPrecisionByFeature().get);
+		*/
+		//System.err.println("Precisão média para Nódulos "+ malignance +" " + precisionMeanForNodules + " +- " + standardDeviationForNodules);
+		//TODO Pegar listOfFeatures e fazer chart apenas com as precisões deles
+		doPrecisionNChart(evaluator.getAverageRankingPrecisionByFeature(), malignance);
+		doPrecisionVsRecallChart(evaluator.getAverageRankingPrecisionByFeature(), evaluator.getAverageRankingRecallByFeature(), malignance);
 	}
 
-	public static void doPrecisionNChart(List<Double> averagePrecision, String malignance){
+	public static void doPrecisionNChart(Map<String, List<Double>> averagePrecision, String malignance){
 		XYLineChart_AWT precisionChart = new XYLineChart_AWT(averagePrecision, "Precisão",
 				"Precisão (" + averagePrecision.size() + ") para Nódulos " + malignance, malignance);
 		precisionChart.pack();
@@ -66,7 +69,7 @@ public class Main {
 		precisionChart.setVisible(true);
 	}
 	
-	public static void doPrecisionVsRecallChart(List <Double> averagePrecision, List<Double> averageRecall, String malignance) {
+	public static void doPrecisionVsRecallChart(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall, String malignance) {
 		XYLineChart_AWT precisionVsRecallChart = new XYLineChart_AWT(averagePrecision, averageRecall, "Precisão vs Revocação",
 				"Revocação (" + averageRecall.size() + ") para Nódulos " + malignance, malignance);
 		precisionVsRecallChart.pack();

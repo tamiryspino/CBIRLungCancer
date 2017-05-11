@@ -123,9 +123,6 @@ public class ListNearestNodules {
 			}
 			partialRecall.add((double) (qntAleatoryNodulesByMalignance) / qntAllNodulesByMalignance);
 		}
-		System.out.println("PRECISÂO: " + this.getPrecision());
-		System.out.println("PARCIAL RECALL: " + partialRecall);
-		System.out.println(" qntAllNodules: " + qntAllNodulesByMalignance);
 		this.recall = partialRecall;
 
 	}

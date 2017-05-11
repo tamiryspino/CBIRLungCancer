@@ -2,6 +2,7 @@ package gov.ufal.br;
 
 import java.awt.Color;
 import java.util.List;
+import java.util.Map;
 import java.awt.BasicStroke;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -30,10 +31,10 @@ public class XYLineChart_AWT extends ApplicationFrame {
 	 */
 	private static final long serialVersionUID = 7097736463433624021L;
 
-	public XYLineChart_AWT(List<Double> precision, String applicationTitle, String chartTitle, String featureName) {
+	public XYLineChart_AWT(Map<String, List<Double>> averagePrecision, String applicationTitle, String chartTitle, String featureName) {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
-				createDataset(precision, featureName), PlotOrientation.VERTICAL, true, true, false);
+				createDataset(averagePrecision, featureName), PlotOrientation.VERTICAL, true, true, false);
 
 		ChartPanel chartPanel = new ChartPanel(xylineChart);
 		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
@@ -48,17 +49,17 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		
 		plot.setRenderer(renderer);
 		NumberAxis range = (NumberAxis) plot.getRangeAxis();
-		range.setRange(precision.get(precision.size()-1)-0.05, precision.get(0)+0.05);
+		//range.setRange(averagePrecision.get(averagePrecision.size()-1)-0.05, averagePrecision.get(0)+0.05);
 		range.setTickUnit(new NumberTickUnit(0.05));
 		NumberAxis domain = (NumberAxis) plot.getDomainAxis();
 		domain.setRange(0,9);
 		setContentPane(chartPanel);
 	}
 
-	public XYLineChart_AWT(List<Double> precision, List<Double> recall, String applicationTitle, String chartTitle, String malignance) {
+	public XYLineChart_AWT(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall, String applicationTitle, String chartTitle, String malignance) {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
-				createDataset(precision, recall, malignance), PlotOrientation.VERTICAL, true, true, false);
+				createDataset(averagePrecision, averageRecall, malignance), PlotOrientation.VERTICAL, true, true, false);
 
 		ChartPanel chartPanel = new ChartPanel(xylineChart);
 		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
@@ -80,40 +81,35 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		setContentPane(chartPanel);
 	}
 
-	private XYSeriesCollection createDataset(List<Double> precision, List<Double> recall, String subtitle) {
-		final XYSeries nodules = new XYSeries(subtitle);
-		Double j = 0.0;
-		if (precision.size() == recall.size()) {
-			for (int i=0; i<precision.size(); i++) {
-				nodules.add(j, precision.get(i));
-				j+=0.1;
+	private XYSeriesCollection createDataset(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall, String subtitle) {
+		final XYSeriesCollection dataset = new XYSeriesCollection();
+		if (averagePrecision.size() == averageRecall.size()) {
+			for (String identification : averagePrecision.keySet()) {
+				final XYSeries nodules = new XYSeries(identification);
+				Double j = 0.0;
+				for (Double p : averagePrecision.get(identification)) {
+					nodules.add(j, p);
+					j+=0.1;
+				}
+			
+				dataset.addSeries(nodules);
 			}
-		}
-
-		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(nodules);
-		
+		}		
 		return dataset;
 	}
 
-	private XYSeriesCollection createDataset(List<Double> precision, String subtitle) {
-		final XYSeries nodules = new XYSeries(subtitle);
-		int i = 0;
-		for (Double p : precision) {
-			nodules.add(i, p);
-			i++;
-		}
-		
+	private XYSeriesCollection createDataset(Map<String, List<Double>> averagePrecision, String subtitle) {
 		final XYSeriesCollection dataset = new XYSeriesCollection();
-		dataset.addSeries(nodules);
-		
+		for (String identification : averagePrecision.keySet()) {
+			final XYSeries nodules = new XYSeries(identification);
+			int i = 0;
+			for (Double p : averagePrecision.get(identification)) {
+				nodules.add(i, p);
+				i++;
+			}
+			
+			dataset.addSeries(nodules);
+		}
 		return dataset;
 	}
-
-	/*
-	 * public static void main(String[] args) { XYLineChart_AWT chart = new
-	 * XYLineChart_AWT(precision, "Browser Usage Statistics",
-	 * "Which Browser are you using?"); chart.pack();
-	 * RefineryUtilities.centerFrameOnScreen(chart); chart.setVisible(true); }
-	 */
 }

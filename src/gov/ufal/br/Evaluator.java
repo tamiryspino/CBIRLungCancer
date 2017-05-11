@@ -1,12 +1,13 @@
 package gov.ufal.br;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.processing.SupportedSourceVersion;
+import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.util.Random;
 
@@ -18,12 +19,22 @@ public class Evaluator {
 	private int qntEvaluatedNodules;
 	private int qntAllBenignNodules;
 	private int qntAllMalignantNodules;
-	Map<String, List<Double>> averageRankingPrecisionByFeature;
+	Map<String, List<Double>> averageRankingPrecisionByFeature = new HashMap<>();
+
+	Map<String, List<Double>> averageRankingRecallByFeature = new HashMap<>();
 
 	public Evaluator(Set<Nodule> allNodules, int qntEvaluatedNodules) {
 		super();
 		this.allNodules = allNodules;
 		this.qntEvaluatedNodules = qntEvaluatedNodules;
+	}
+	
+	public Map<String, List<Double>> getAverageRankingPrecisionByFeature() {
+		return averageRankingPrecisionByFeature;
+	}
+	
+	public Map<String, List<Double>> getAverageRankingRecallByFeature() {
+		return averageRankingRecallByFeature;
 	}
 
 	public Set<Nodule> getAleatoryMalignantNodules() {
@@ -79,20 +90,20 @@ public class Evaluator {
 	 * cálcula para cada lista de nódulos vizinhos (definidos por features)
 	 * a média das precisões por ranking dos m nódulos vizinhos
 	 **/
-	public List<Double> setAveragePrecisionByNoduleRanking(Set<Nodule> nodules) {
-		List<List<Double>> precisionForAllNodules = new ArrayList<>();
-		List<Double> averagePrecisionForAllNodules = new ArrayList<>();
+	public void setAveragePrecisionByNoduleRanking(Set<Nodule> nodules) {
 		int qntListNearestNodulesByFeature = 0;
-		//Segurança para que a lista de nódulos vizinhos sejam da mesma feature
-		Set<String> identification = new HashSet<>();
-		//TODO get(0) deverá ser get(listNearestNodules) para cada um da lista	
 		for (Nodule n : nodules) {
 			qntListNearestNodulesByFeature = n.getNearbyNodules().size();
 		}
+		List<List<Double>> precisionForAllNodules;
+		List<Double> averagePrecisionForAllNodules;
+		String featureName = "";
 		for (int j = 0; j< qntListNearestNodulesByFeature; j++){
+			precisionForAllNodules = new ArrayList<>();
+			averagePrecisionForAllNodules = new ArrayList<>();
 			for(Nodule n : nodules) {
 				precisionForAllNodules.add(n.getNearbyNodules().get(j).getPrecision());
-				identification.add(n.getNearbyNodules().get(j).getIdentification());
+				featureName = n.getNearbyNodules().get(j).getIdentification();
 			}
 			List<Double> precisionByNoduleRanking = new ArrayList<>();
 			for (int i = 0; i < nodules.size(); i++) {
@@ -101,34 +112,39 @@ public class Evaluator {
 				}
 				averagePrecisionForAllNodules
 				.add(precisionByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
-			}
-			if (identification.size() != 1) {
-				System.err.println("Lista de nódulos vizinhos não confere");
-			}
-			else {
-				this.averageRankingPrecisionByFeature.put(identification.toString(), averagePrecisionForAllNodules);
-			}
+			}			
+			this.averageRankingPrecisionByFeature.put(featureName, averagePrecisionForAllNodules);
 		}
-
-		return averagePrecisionForAllNodules;
 	}
 
-	public List<Double> setAverageRecallForAllNodules(Set<Nodule> nodules) {
-		List<List<Double>> recallForAllNodules = new ArrayList<>();
-		List<Double> averageRecallForAllNodules = new ArrayList<>();
+	public void setAverageRecallForAllNodules(Set<Nodule> nodules) {
 		//TODO get(0) deverá ser listNearestNodules para cada um da lista
+		int qntListNearestNodulesByFeature = 0;
 		for (Nodule n : nodules) {
-			recallForAllNodules.add(n.getNearbyNodules().get(0).getRecall());
+			qntListNearestNodulesByFeature = n.getNearbyNodules().size();
 		}
-		List<Double> recallByNoduleRanking = new ArrayList<>();
-		for (int i = 0; i < nodules.size(); i++) {
-			for (List<Double> recall : recallForAllNodules) {
-				recallByNoduleRanking.add(recall.get(i));
+		List<List<Double>> recallForAllNodules;
+		List<Double> averageRecallForAllNodules;
+		String featureName = "";
+		for (int j = 0; j< qntListNearestNodulesByFeature; j++){
+			recallForAllNodules = new ArrayList<>();
+			averageRecallForAllNodules = new ArrayList<>();
+			for(Nodule n : nodules) {
+				recallForAllNodules.add(n.getNearbyNodules().get(j).getRecall());
+				featureName = n.getNearbyNodules().get(j).getIdentification();
 			}
-			averageRecallForAllNodules.add(recallByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
+			List<Double> recallByNoduleRanking = new ArrayList<>();
+			for (int i = 0; i < nodules.size(); i++) {
+				for (List<Double> recall : recallForAllNodules) {
+					recallByNoduleRanking.add(recall.get(i));
+				}
+				averageRecallForAllNodules
+				.add(recallByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
+			}
+			System.err.println("Nome: " + featureName + " Valor: " + averageRecallForAllNodules);
+			this.averageRankingRecallByFeature.put(featureName, averageRecallForAllNodules);
+			
 		}
-		return averageRecallForAllNodules;
-
 	}
 /*
 	public void setNearbyNodulesByAllFeatures(Set<Nodule> aleatoryNodules, Set<Nodule> allNodules, int qntRanking) {
@@ -157,11 +173,13 @@ public class Evaluator {
 				ListNearestNodules listNearestNodulesByFeature = new ListNearestNodules(identification, nodule, allNodules, distanceType,
 						features, qntAllNodulesByMalignance, qntRanking);
 				nodule.addListNearestNodules(listNearestNodulesByFeature);		
+				System.err.println(identification + " " + listNearestNodulesByFeature);
 			}
 			
 			//Lista de nódulos vizinhos para features integradas
 			if(features.size() > 1) {
 				identification = getFeaturesNames(features);
+				System.out.println(identification);
 				ListNearestNodules listNearestNodulesByIntegratedFeatures = new ListNearestNodules(identification, nodule, allNodules, distanceType,
 					features, qntAllNodulesByMalignance, qntRanking);
 				nodule.addListNearestNodules(listNearestNodulesByIntegratedFeatures);
@@ -173,9 +191,9 @@ public class Evaluator {
 		String featuresNames = "";
 		for(int i = 0; i < features.size(); i++) {
 			featuresNames += features.get(i).getFeatureName();
-			if (i == features.size()-1 && features.size() > 1) {
+			if (i == features.size()-2 && features.size() > 1) {
 				featuresNames += " e ";
-			} else if (features.size() > 1) {
+			} else if (i != features.size() -1 && features.size() > 1) {
 				featuresNames += ", ";
 			}
 		}
