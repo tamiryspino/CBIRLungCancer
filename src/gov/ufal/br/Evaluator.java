@@ -92,27 +92,50 @@ public class Evaluator {
 	 **/
 	public void setAveragePrecisionByNoduleRanking(Set<Nodule> nodules) {
 		int qntListNearestNodulesByFeature = 0;
-		for (Nodule n : nodules) {
-			qntListNearestNodulesByFeature = n.getNearbyNodules().size();
-		}
+		/**Verifica a quantidade de tipos de nódulos vizinhos por feature
+		 * e assume que todos os nódulos aleatórios tem a mesma quantidade de tipos vizinhos **/
+		qntListNearestNodulesByFeature = nodules.iterator().next().getNearbyNodules().size();
 		List<List<Double>> precisionForAllNodules;
 		List<Double> averagePrecisionForAllNodules;
 		String featureName = "";
+		String featureNameAux = "";
 		for (int j = 0; j< qntListNearestNodulesByFeature; j++){
 			precisionForAllNodules = new ArrayList<>();
 			averagePrecisionForAllNodules = new ArrayList<>();
+			featureName = nodules.iterator().next().getNearbyNodules().get(j).getIdentification();
+			/**Para cada nódulo aleatório,
+			 * para cada tipo de nódulos vizinhos por feature, 
+			 * adiciona a lista das precisões dos n nódulos vizinhos retornados em uma lista de listas**/
+			System.out.println("Calculando a média das precisões de " + featureName + " por ranking");
 			for(Nodule n : nodules) {
-				precisionForAllNodules.add(n.getNearbyNodules().get(j).getPrecision());
-				featureName = n.getNearbyNodules().get(j).getIdentification();
+				featureNameAux = n.getNearbyNodules().get(j).getIdentification();
+				if(featureName.equals(featureNameAux)) {
+					precisionForAllNodules.add(n.getNearbyNodules().get(j).getPrecision());	
+					//System.out.println(n.getNearbyNodules().get(j).getPrecision());
+				}
+				else {
+					System.err.println("Ordenação da lista de nódulos vizinhos por feature não confere para todos os nódulos aleatórios");
+				}
 			}
-			List<Double> precisionByNoduleRanking = new ArrayList<>();
+			/** Faz a média das precisões pelo index de cada lista de precisões,
+			 * ou seja, faz a média por ranking dos nódulos vizinhos por feature
+			 * Ex.: 					1/1, 1/2, 2/3, ... m nódulos vizinhos por feature
+			 * 							1/1, 2/2, 3/3, ...
+			 * 			 						.
+			 *n nódulos aleatórios				.
+			 * 									.
+			 * média: 				(1/1+1/1)/n, (1/2+2/2)/n, ...**/
+			List<Double> precisionByNoduleRanking;
 			for (int i = 0; i < nodules.size(); i++) {
+				precisionByNoduleRanking = new ArrayList<>();
 				for (List<Double> precision : precisionForAllNodules) {
 					precisionByNoduleRanking.add(precision.get(i));
 				}
 				averagePrecisionForAllNodules
 				.add(precisionByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
-			}			
+				//System.out.println("Array por index: " + precisionByNoduleRanking + " Media: " + precisionByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
+			}	
+			System.out.println("Array das medias das precisoes: " + averagePrecisionForAllNodules);
 			this.averageRankingPrecisionByFeature.put(featureName, averagePrecisionForAllNodules);
 		}
 	}
@@ -126,22 +149,34 @@ public class Evaluator {
 		List<List<Double>> recallForAllNodules;
 		List<Double> averageRecallForAllNodules;
 		String featureName = "";
+		String featureNameAux = "";
 		for (int j = 0; j< qntListNearestNodulesByFeature; j++){
 			recallForAllNodules = new ArrayList<>();
 			averageRecallForAllNodules = new ArrayList<>();
+			featureName = nodules.iterator().next().getNearbyNodules().get(j).getIdentification();
+			System.out.println("Calculando a média das revocações de " + featureName + " por ranking");
 			for(Nodule n : nodules) {
-				recallForAllNodules.add(n.getNearbyNodules().get(j).getRecall());
-				featureName = n.getNearbyNodules().get(j).getIdentification();
+				featureNameAux = n.getNearbyNodules().get(j).getIdentification();
+				if(featureName.equals(featureNameAux)) {
+					recallForAllNodules.add(n.getNearbyNodules().get(j).getRecall());	
+					//System.out.println(n.getNearbyNodules().get(j).getRecall());
+				}
+				else {
+					System.err.println("Ordenação da lista de nódulos vizinhos por feature não confere para todos os nódulos aleatórios");
+				}
 			}
-			List<Double> recallByNoduleRanking = new ArrayList<>();
+			List<Double> recallByNoduleRanking;
 			for (int i = 0; i < nodules.size(); i++) {
+				recallByNoduleRanking = new ArrayList<>();
 				for (List<Double> recall : recallForAllNodules) {
 					recallByNoduleRanking.add(recall.get(i));
 				}
 				averageRecallForAllNodules
 				.add(recallByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
+
+				//System.out.println("Array por index: " + recallByNoduleRanking + "Media: " + recallByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
 			}
-			System.err.println("Nome: " + featureName + " Valor: " + averageRecallForAllNodules);
+			System.out.println("Array das médias das recall: " + averageRecallForAllNodules);
 			this.averageRankingRecallByFeature.put(featureName, averageRecallForAllNodules);
 			
 		}
@@ -168,22 +203,21 @@ public class Evaluator {
 			int qntAllNodulesByMalignance = isMalignant(nodule.getMalignance()) ? this.getQntAllMalignantNodules()
 					: this.getQntAllBenignNodules();
 			String identification = "";
-			for(GroupFeaturesEnum feature : features) {
-				identification = feature.getFeatureName();
-				ListNearestNodules listNearestNodulesByFeature = new ListNearestNodules(identification, nodule, allNodules, distanceType,
-						features, qntAllNodulesByMalignance, qntRanking);
-				nodule.addListNearestNodules(listNearestNodulesByFeature);		
-				System.err.println(identification + " " + listNearestNodulesByFeature);
-			}
 			
 			//Lista de nódulos vizinhos para features integradas
 			if(features.size() > 1) {
 				identification = getFeaturesNames(features);
-				System.out.println(identification);
-				ListNearestNodules listNearestNodulesByIntegratedFeatures = new ListNearestNodules(identification, nodule, allNodules, distanceType,
+			} else {
+				identification = features.get(0).getFeatureName();
+			}	
+			ListNearestNodules listNearestNodulesByIntegratedFeatures = new ListNearestNodules(identification, nodule, allNodules, distanceType,
 					features, qntAllNodulesByMalignance, qntRanking);
-				nodule.addListNearestNodules(listNearestNodulesByIntegratedFeatures);
-			}
+			/*System.out.println("Identificação: "+ identification + "\n"
+						+ "Precisão: " + listNearestNodulesByIntegratedFeatures.getPrecision() + "\n"
+						+ "Recall: " + listNearestNodulesByIntegratedFeatures.getRecall());
+			*/	
+			nodule.addListNearestNodules(listNearestNodulesByIntegratedFeatures);
+			
 		}
 	}
 

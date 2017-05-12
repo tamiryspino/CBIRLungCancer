@@ -29,10 +29,12 @@ public class ListNearestNodules {
 	}
 
 	public StringBuilder showNearbyNodules() {
-		StringBuilder str = new StringBuilder("-------------- ListNearestNodules --------------- \n");
+		StringBuilder str = new StringBuilder("-------------- ListNearestNodules by " + this.getIdentification() + "--------------- \n");
 		for (Nodule nn : nearbyNodules) {
 			str.append(nn.toString() + "");
 		}
+		str.append("Precisão: " + this.getPrecision());
+		str.append("Recall: " + this.getRecall());
 		return str;
 	}
 
@@ -115,7 +117,7 @@ public class ListNearestNodules {
 		int qntAleatoryNodulesByMalignance = 0;
 		boolean primaryNoduleMalignance = isMalignant(primaryNodule.getMalignance());
 		boolean nearbyNoduleMalignance;
-		int qntAllNodulesByMalignance = nearbyNodules.size() + 1;
+		int qntAllNodulesByMalignance = nearbyNodules.size();
 		for (Nodule nodule : nearbyNodules) {
 			nearbyNoduleMalignance = isMalignant(nodule.getMalignance());
 			if (primaryNoduleMalignance == nearbyNoduleMalignance) {

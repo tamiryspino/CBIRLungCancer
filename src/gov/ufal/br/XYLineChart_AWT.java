@@ -31,10 +31,10 @@ public class XYLineChart_AWT extends ApplicationFrame {
 	 */
 	private static final long serialVersionUID = 7097736463433624021L;
 
-	public XYLineChart_AWT(Map<String, List<Double>> averagePrecision, String applicationTitle, String chartTitle, String featureName) {
+	public XYLineChart_AWT(Map<String, List<Double>> averagePrecision, String applicationTitle, String chartTitle) {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
-				createDataset(averagePrecision, featureName), PlotOrientation.VERTICAL, true, true, false);
+				createDataset(averagePrecision), PlotOrientation.VERTICAL, true, true, false);
 
 		ChartPanel chartPanel = new ChartPanel(xylineChart);
 		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
@@ -56,10 +56,10 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		setContentPane(chartPanel);
 	}
 
-	public XYLineChart_AWT(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall, String applicationTitle, String chartTitle, String malignance) {
+	public XYLineChart_AWT(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall, String applicationTitle, String chartTitle) {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
-				createDataset(averagePrecision, averageRecall, malignance), PlotOrientation.VERTICAL, true, true, false);
+				createDataset(averagePrecision, averageRecall), PlotOrientation.VERTICAL, true, true, false);
 
 		ChartPanel chartPanel = new ChartPanel(xylineChart);
 		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
@@ -81,12 +81,14 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		setContentPane(chartPanel);
 	}
 
-	private XYSeriesCollection createDataset(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall, String subtitle) {
+	private XYSeriesCollection createDataset(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall) {
 		final XYSeriesCollection dataset = new XYSeriesCollection();
+		XYSeries nodules;
+		Double j;
 		if (averagePrecision.size() == averageRecall.size()) {
 			for (String identification : averagePrecision.keySet()) {
-				final XYSeries nodules = new XYSeries(identification);
-				Double j = 0.0;
+				nodules = new XYSeries(identification);
+				j = 0.0;
 				for (Double p : averagePrecision.get(identification)) {
 					nodules.add(j, p);
 					j+=0.1;
@@ -98,14 +100,16 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		return dataset;
 	}
 
-	private XYSeriesCollection createDataset(Map<String, List<Double>> averagePrecision, String subtitle) {
-		final XYSeriesCollection dataset = new XYSeriesCollection();
+	private XYSeriesCollection createDataset(Map<String, List<Double>> averagePrecision) {
+		XYSeriesCollection dataset = new XYSeriesCollection();
+		XYSeries nodules;
+		int noduleCount;
 		for (String identification : averagePrecision.keySet()) {
-			final XYSeries nodules = new XYSeries(identification);
-			int i = 0;
-			for (Double p : averagePrecision.get(identification)) {
-				nodules.add(i, p);
-				i++;
+			nodules = new XYSeries(identification);
+			noduleCount = 0;
+			for (Double precision : averagePrecision.get(identification)) {
+				nodules.add(noduleCount, precision);
+				noduleCount++;
 			}
 			
 			dataset.addSeries(nodules);

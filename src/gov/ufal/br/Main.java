@@ -32,16 +32,34 @@ public class Main {
 		
 		List<GroupFeaturesEnum> listOfFeatures = new ArrayList<>();
 		listOfFeatures.add(GroupFeaturesEnum.ALL_FEATURES);
+		System.out.println("Calculando lista de nódulos vizinhos mais próximos por todas as features para cada nódulos aleatórios BENIGNOS");
 		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryBenignNodules, allNodules, qntRanking, "Benignos");
+		System.out.println("Calculando lista de nódulos vizinhos mais próximos por todas as features para cada nódulos aleatórios MALIGNOS");
 		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryMalignantNodules, allNodules, qntRanking, "Malignos");
 		
 		listOfFeatures.clear();
+		
 		listOfFeatures.add(GroupFeaturesEnum.NODULE_TEXTURE);
-		listOfFeatures.add(GroupFeaturesEnum.NODULE_SHAPE);
-		System.out.println("OK!");
+		System.out.println("Calculando lista de nódulos vizinhos mais próximos por textura para cada nódulos aleatórios BENIGNOS");
 		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryBenignNodules, allNodules, qntRanking, "Benignos");
+		System.out.println("Calculando lista de nódulos vizinhos mais próximos por textura para cada nódulos aleatórios MALIGNOS");
 		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryMalignantNodules, allNodules, qntRanking, "Malignos");
 		
+		listOfFeatures.clear();
+		listOfFeatures.add(GroupFeaturesEnum.NODULE_SHAPE);
+		System.out.println("Calculando lista de nódulos vizinhos mais próximos por forma para cada nódulos aleatórios BENIGNOS");
+		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryBenignNodules, allNodules, qntRanking, "Benignos");
+		System.out.println("Calculando lista de nódulos vizinhos mais próximos por forma para cada nódulos aleatórios MALIGNOS");
+		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryMalignantNodules, allNodules, qntRanking, "Malignos");
+		
+
+		listOfFeatures.clear();
+		listOfFeatures.add(GroupFeaturesEnum.NODULE_SHAPE);
+		listOfFeatures.add(GroupFeaturesEnum.NODULE_TEXTURE);
+		System.out.println("Calculando lista de nódulos vizinhos mais próximos por forma e textura para cada nódulos aleatórios BENIGNOS");
+		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryBenignNodules, allNodules, qntRanking, "Benignos");
+		System.out.println("Calculando lista de nódulos vizinhos mais próximos por forma e textura para cada nódulos aleatórios MALIGNOS");
+		setNearbyNodules(evaluator, listOfFeatures, Distances.EUCLIDIAN, aleatoryMalignantNodules, allNodules, qntRanking, "Malignos");
 		
 		
 		System.out.println("Vizinhança dos nódulos foi adicionada pela menor distância euclidiana.");
@@ -63,7 +81,7 @@ public class Main {
 
 	public static void doPrecisionNChart(Map<String, List<Double>> averagePrecision, String malignance){
 		XYLineChart_AWT precisionChart = new XYLineChart_AWT(averagePrecision, "Precisão",
-				"Precisão (" + averagePrecision.size() + ") para Nódulos " + malignance, malignance);
+				"Precisão para Nódulos " + malignance);
 		precisionChart.pack();
 		RefineryUtilities.centerFrameOnScreen(precisionChart);
 		precisionChart.setVisible(true);
@@ -71,7 +89,7 @@ public class Main {
 	
 	public static void doPrecisionVsRecallChart(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall, String malignance) {
 		XYLineChart_AWT precisionVsRecallChart = new XYLineChart_AWT(averagePrecision, averageRecall, "Precisão vs Revocação",
-				"Revocação (" + averageRecall.size() + ") para Nódulos " + malignance, malignance);
+				"Precisão vs Revocação para Nódulos " + malignance);
 		precisionVsRecallChart.pack();
 		RefineryUtilities.centerFrameOnScreen(precisionVsRecallChart);
 		precisionVsRecallChart.setVisible(true);
