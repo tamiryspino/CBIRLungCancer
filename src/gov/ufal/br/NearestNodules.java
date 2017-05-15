@@ -12,7 +12,16 @@ public class NearestNodules {
 	String characteristic;
 	Nodule primaryNodule;
 	List<Nodule> nearbyNodules;
-	Precision precisionOfNearestNodules;
+	List<Double> precisions;
+	Double averagePrecision;
+
+	public Double getAveragePrecision() {
+		return averagePrecision;
+	}
+
+	public void setAveragePrecision(Double averagePrecision) {
+		this.averagePrecision = precisions.stream().mapToDouble(a -> a).average().orElse(0);
+	}
 
 	public NearestNodules(Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
 			List<GroupFeaturesEnum> features, int qntRanking) {
@@ -21,7 +30,6 @@ public class NearestNodules {
 		this.primaryNodule = primaryNodule;
 		List<Nodule> listAllNodules = new ArrayList<>(allNodules);
 		setNearbyNodules(listAllNodules, distance, features, qntRanking);
-		this.setPrecisionOfNearestNodules();
 	}
 
 	public StringBuilder showNearbyNodules() {
@@ -29,7 +37,7 @@ public class NearestNodules {
 		for (Nodule nn : nearbyNodules) {
 			str.append(nn.toString() + "");
 		}
-		str.append("Precisão: " + this.getPrecisionOfNearestNodules());
+		str.append("Precisão: " + this.getPrecisions());
 		return str;
 	}
 
@@ -51,14 +59,6 @@ public class NearestNodules {
 
 		this.nearbyNodules = nearbyNodules.subList(0,
 				nearbyNodules.size() > qntRanking ? qntRanking : nearbyNodules.size());
-	}
-
-	public Precision getPrecisionOfNearestNodules() {
-		return precisionOfNearestNodules;
-	}
-
-	public void setPrecisionOfNearestNodules() {
-		this.precisionOfNearestNodules = new Precision(this);
 	}
 
 	public Nodule getPrimaryNodule() {
@@ -91,5 +91,30 @@ public class NearestNodules {
 	
 	public String getCharacteristic() {
 		return characteristic;
+	}
+
+	public void setPrecisions() {
+		Double sumMalignances = 0.0;
+		List<Double> partialPrecision = new ArrayList<>();
+		int noduleQnt = 0;
+		boolean primaryNoduleMalignance = isMalignant(this.getPrimaryNodule().getMalignance());
+		boolean nearbyNoduleMalignance;
+		for (Nodule nodule : this.getNearbyNodules()) {
+			noduleQnt++;
+			nearbyNoduleMalignance = isMalignant(nodule.getMalignance());
+			if (primaryNoduleMalignance == nearbyNoduleMalignance) {
+				sumMalignances++;
+			}
+			partialPrecision.add(sumMalignances / noduleQnt);
+		}
+		this.precisions = partialPrecision;
+	}
+	
+	public List<Double> getPrecisions() {
+		return precisions;
+	}
+
+	private boolean isMalignant(String malignance) {
+		return ("MALIGNANT".equals(malignance)) ? true : false;
 	}
 }

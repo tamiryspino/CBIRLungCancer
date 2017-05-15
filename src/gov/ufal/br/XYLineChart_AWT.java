@@ -8,11 +8,8 @@ import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.NumberTickUnit;
-import org.jfree.data.category.DefaultCategoryDataset;
-import org.jfree.data.xy.XYDataset;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.ui.ApplicationFrame;
-import org.jfree.ui.RefineryUtilities;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.plot.PlotOrientation;
@@ -31,10 +28,10 @@ public class XYLineChart_AWT extends ApplicationFrame {
 	 */
 	private static final long serialVersionUID = 7097736463433624021L;
 
-	public XYLineChart_AWT(Map<String, List<Double>> averagePrecision, String applicationTitle, String chartTitle) {
+	public XYLineChart_AWT(List<PrecisionByFeatures> precisions, String applicationTitle, String chartTitle) {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
-				createDataset(averagePrecision), PlotOrientation.VERTICAL, true, true, false);
+				createDataset(precisions), PlotOrientation.VERTICAL, true, true, false);
 
 		ChartPanel chartPanel = new ChartPanel(xylineChart);
 		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
@@ -100,15 +97,15 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		return dataset;
 	}
 
-	private XYSeriesCollection createDataset(Map<String, List<Double>> averagePrecision) {
+	private XYSeriesCollection createDataset(List<PrecisionByFeatures> precisions) {
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		XYSeries nodules;
 		int noduleCount;
-		for (String identification : averagePrecision.keySet()) {
-			nodules = new XYSeries(identification);
+		for (PrecisionByFeatures precision : precisions) {
+			nodules = new XYSeries(precision.getFeatureName());
 			noduleCount = 0;
-			for (Double precision : averagePrecision.get(identification)) {
-				nodules.add(noduleCount, precision);
+			for (Double p : precision.getAverageOfPrecisionByRanking()) {
+				nodules.add(noduleCount, p);
 				noduleCount++;
 			}
 			
