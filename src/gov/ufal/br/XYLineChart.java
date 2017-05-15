@@ -2,7 +2,6 @@ package gov.ufal.br;
 
 import java.awt.Color;
 import java.util.List;
-import java.util.Map;
 import java.awt.BasicStroke;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -22,13 +21,13 @@ import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
  * @author tamiryspino
  *
  */
-public class XYLineChart_AWT extends ApplicationFrame {
+public class XYLineChart extends ApplicationFrame {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 7097736463433624021L;
 
-	public XYLineChart_AWT(List<PrecisionByFeatures> precisions, String applicationTitle, String chartTitle) {
+	public XYLineChart(List<PrecisionByFeatures> precisions, String applicationTitle, String chartTitle) {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
 				createDataset(precisions), PlotOrientation.VERTICAL, true, true, false);
@@ -51,50 +50,6 @@ public class XYLineChart_AWT extends ApplicationFrame {
 		NumberAxis domain = (NumberAxis) plot.getDomainAxis();
 		domain.setRange(0,9);
 		setContentPane(chartPanel);
-	}
-
-	public XYLineChart_AWT(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall, String applicationTitle, String chartTitle) {
-		super(applicationTitle);
-		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Category", "Score",
-				createDataset(averagePrecision, averageRecall), PlotOrientation.VERTICAL, true, true, false);
-
-		ChartPanel chartPanel = new ChartPanel(xylineChart);
-		chartPanel.setPreferredSize(new java.awt.Dimension(560, 367));
-		final XYPlot plot = xylineChart.getXYPlot();
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-		renderer.setSeriesPaint(0, Color.RED);
-		plot.setBackgroundPaint(Color.white);
-		plot.setDomainGridlinePaint(Color.black);
-		plot.setRangeGridlinePaint(Color.BLACK);
-		
-		renderer.setSeriesStroke(0, new BasicStroke(.5f));
-		plot.setRenderer(renderer);
-		NumberAxis range = (NumberAxis) plot.getRangeAxis();
-		range.setRange(0.3, 1.1);
-		NumberAxis domain = (NumberAxis) plot.getDomainAxis();
-		domain.setRange(0,1);
-		domain.setTickUnit(new NumberTickUnit(0.1));
-		
-		setContentPane(chartPanel);
-	}
-
-	private XYSeriesCollection createDataset(Map<String, List<Double>> averagePrecision, Map<String, List<Double>> averageRecall) {
-		final XYSeriesCollection dataset = new XYSeriesCollection();
-		XYSeries nodules;
-		Double j;
-		if (averagePrecision.size() == averageRecall.size()) {
-			for (String identification : averagePrecision.keySet()) {
-				nodules = new XYSeries(identification);
-				j = 0.0;
-				for (Double p : averagePrecision.get(identification)) {
-					nodules.add(j, p);
-					j+=0.1;
-				}
-			
-				dataset.addSeries(nodules);
-			}
-		}		
-		return dataset;
 	}
 
 	private XYSeriesCollection createDataset(List<PrecisionByFeatures> precisions) {

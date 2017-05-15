@@ -1,5 +1,6 @@
 package gov.ufal.br;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -11,7 +12,7 @@ public class EvaluatedNodules {
 	private String malignance;
 	private Set<Nodule> aleatoryNodulesByMalignance = new HashSet<>();
 	private Set<Nodule> allNodules;
-	private List<PrecisionByFeatures> precisions;
+	private List<PrecisionByFeatures> precisions = new ArrayList<>();
 	//TODO DESVIO PADRÃO
 
 	public EvaluatedNodules(String malignance, Set<Nodule> allNodules, int qntAleatoryNodules) {
@@ -25,7 +26,7 @@ public class EvaluatedNodules {
 		return aleatoryNodulesByMalignance;
 	}
 
-	public Set<Nodule> setAleatoryNodulesByMalignance(int qntAleatoryNodules) {
+	public void setAleatoryNodulesByMalignance(int qntAleatoryNodules) {
 
 		Random rnd;
 		Set<Nodule> nodules = new HashSet<>();
@@ -34,7 +35,8 @@ public class EvaluatedNodules {
 		String noduleMalignance;
 		while (nodules.size() < qntAleatoryNodules) {
 			noduleMalignance = "";
-			while (malignance.equals(noduleMalignance)) {
+			//System.out.println(malignance);
+			while (!malignance.equals(noduleMalignance)) {
 				rnd = new Random();
 				n = rnd.nextInt(this.allNodules.size());
 				nodule = (Nodule) allNodules.toArray()[n];
@@ -42,7 +44,7 @@ public class EvaluatedNodules {
 			}
 			nodules.add(nodule);
 		}
-		return nodules;
+		this.aleatoryNodulesByMalignance = nodules;
 	}
 
 	public Set<Nodule> getAllNodules() {
@@ -66,28 +68,26 @@ public class EvaluatedNodules {
 			/*
 			 * System.out.println("Identificação: "+ identification + "\n" +
 			 * "Precisão: " +
-			 * listNearestNodulesByIntegratedFeatures.getPrecision() + "\n" +
-			 * "Recall: " + listNearestNodulesByIntegratedFeatures.getRecall());
-			 */
+			 * listNearestNodulesByIntegratedFeatures.getPrecision();*/
 
 		}
 		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, getFeatureName(features)));
 	}
 	
 	public String getFeatureName(List<GroupFeaturesEnum> features){
-		String featureName = "";
+		StringBuilder featureName = new StringBuilder();
 		for(int i = 0; i < features.size(); i++) {
-			featureName += features.get(i).getFeatureName();
+			featureName.append(features.get(i).getFeatureName());
 			if (i == features.size()-2 && features.size() > 1) {
-				featureName += " e ";
+				featureName.append(" e ");
 			} else if (i != features.size() -1 && features.size() > 1) {
-				featureName += ", ";
+				featureName.append(", ");
 			}
 		}
 		if(features.size() > 1) {
-			featureName += " integrados";
+			featureName.append(" integrados");
 		}
-		return featureName;
+		return featureName.toString();
 	}
 
 	public String getMalignance() {

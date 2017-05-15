@@ -15,21 +15,21 @@ public class NearestNodules {
 	List<Double> precisions;
 	Double averagePrecision;
 
-	public Double getAveragePrecision() {
-		return averagePrecision;
-	}
-
-	public void setAveragePrecision(Double averagePrecision) {
-		this.averagePrecision = precisions.stream().mapToDouble(a -> a).average().orElse(0);
-	}
-
 	public NearestNodules(Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
 			List<GroupFeaturesEnum> features, int qntRanking) {
 		super();
 		setCharacteristic(features);
 		this.primaryNodule = primaryNodule;
-		List<Nodule> listAllNodules = new ArrayList<>(allNodules);
-		setNearbyNodules(listAllNodules, distance, features, qntRanking);
+		setNearbyNodules(allNodules, distance, features, qntRanking);
+		setPrecisions();
+	}
+
+	public Double getAveragePrecision() {
+		return averagePrecision;
+	}
+
+	public void setAveragePrecision() {
+		this.averagePrecision = precisions.stream().mapToDouble(a -> a).average().orElse(0);
 	}
 
 	public StringBuilder showNearbyNodules() {
@@ -45,20 +45,23 @@ public class NearestNodules {
 		return nearbyNodules;
 	}
 
-	public void setNearbyNodules(List<Nodule> nearbyNodules, Distances distanceFormula, List<GroupFeaturesEnum> features,
+	public void setNearbyNodules(Set<Nodule> nearbyNodules, Distances distanceFormula, List<GroupFeaturesEnum> features,
 			int qntRanking) {
+		List<Nodule> nearestNodules = new ArrayList<>(nearbyNodules);
 		BigDecimal distance = new BigDecimal("0.0");
-		for (Nodule nodule : nearbyNodules) {
+		for (Nodule nodule : nearestNodules) {
 			if (distanceFormula == Distances.EUCLIDIAN) {
 				distance = Operations.euclidianDistance(primaryNodule, nodule, features);
 			}
 			//TODO else if (distanceFormula == Distances.)
 			nodule.setDistance(distance);
 		}
-		Collections.sort(nearbyNodules, Comparator.comparing(Nodule::getDistance));
-
-		this.nearbyNodules = nearbyNodules.subList(0,
-				nearbyNodules.size() > qntRanking ? qntRanking : nearbyNodules.size());
+		//TODO Verificar pq não está ordenando
+		Collections.sort(nearestNodules, Comparator.comparing(Nodule::getDistance));
+		
+		this.nearbyNodules = nearestNodules.subList(0,
+				nearestNodules.size() > qntRanking ? qntRanking : nearestNodules.size());
+		showNearbyNodules();
 	}
 
 	public Nodule getPrimaryNodule() {
@@ -73,20 +76,20 @@ public class NearestNodules {
 		this.characteristic = characteristic;
 	}
 	
-	private String setCharacteristic(List<GroupFeaturesEnum> features) {
-		String featuresNames = "";
+	private void setCharacteristic(List<GroupFeaturesEnum> features) {
+		StringBuilder featureName = new StringBuilder();
 		for(int i = 0; i < features.size(); i++) {
-			featuresNames += features.get(i).getFeatureName();
+			featureName.append(features.get(i).getFeatureName());
 			if (i == features.size()-2 && features.size() > 1) {
-				featuresNames += " e ";
+				featureName.append(" e ");
 			} else if (i != features.size() -1 && features.size() > 1) {
-				featuresNames += ", ";
+				featureName.append(", ");
 			}
 		}
 		if(features.size() > 1) {
-			featuresNames += " integrados";
+			featureName.append(" integrados");
 		}
-		return featuresNames;
+		this.characteristic = featureName.toString();
 	}
 	
 	public String getCharacteristic() {
@@ -108,6 +111,7 @@ public class NearestNodules {
 			partialPrecision.add(sumMalignances / noduleQnt);
 		}
 		this.precisions = partialPrecision;
+		setAveragePrecision();
 	}
 	
 	public List<Double> getPrecisions() {
@@ -115,6 +119,6 @@ public class NearestNodules {
 	}
 
 	private boolean isMalignant(String malignance) {
-		return ("MALIGNANT".equals(malignance)) ? true : false;
+		return "MALIGNANT".equals(malignance) ? true : false;
 	}
 }

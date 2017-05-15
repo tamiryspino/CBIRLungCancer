@@ -14,6 +14,7 @@ public class PrecisionByFeatures {
 
 	public PrecisionByFeatures(Set<Nodule> aleatoryNodules, String featureName) {
 		super();
+		System.out.println(aleatoryNodules);
 		this.aleatoryNodules = aleatoryNodules;
 		this.featureName = featureName;
 		setPrecisionsByRanking();
@@ -46,9 +47,10 @@ public class PrecisionByFeatures {
 		 **/
 		int qntOfNoduleNearestNodules = aleatoryNodules.iterator().next().getNearbyNodules().size();
 		List<List<Double>> precisionForAllNodules = new ArrayList<>();
-		String featureNameAux = "";
+		String featureNameAux;
 		for (int j = 0; j < qntOfNoduleNearestNodules; j++) {
 			precisionForAllNodules = new ArrayList<>();
+			//System.out.println(aleatoryNodules);
 			setFeatureName(aleatoryNodules.iterator().next().getNearbyNodules().get(j).getCharacteristic());
 			/**
 			 * Para cada nódulo aleatório, para cada tipo de nódulos vizinhos
