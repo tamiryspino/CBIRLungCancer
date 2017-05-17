@@ -1,19 +1,17 @@
 package gov.ufal.br;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 public class Operations {
 	
-	public static BigDecimal sqrt(BigDecimal value) {
-	    return BigDecimal.valueOf(Math.sqrt(value.doubleValue()));
+	public static Double sqrt(Double value) {
+	    return Double.valueOf(Math.sqrt(value.doubleValue()));
 	}
 	
-	public static List<String> getSelectedFeatures(Nodule nodule, List<GroupFeaturesEnum> features) {
+	public static List<String> getFeatures(Nodule nodule, List<GroupFeaturesEnum> features) {
 		List<String> selectedFeatures = new ArrayList<>();
 		for(GroupFeaturesEnum feature : features) {
 			selectedFeatures.addAll(nodule.getFeatures().subList(feature.getInicialIndex(), feature.getFinalIndex()));
@@ -21,28 +19,35 @@ public class Operations {
 		return selectedFeatures;
 	}
 
-
-	public static BigDecimal euclidianDistance(Nodule primaryNodule, Nodule observedNodule, List<GroupFeaturesEnum> features) {
-		BigDecimal sumFeaturesDifs = new BigDecimal("0");
-		List<String> strPrimaryNoduleFeatures = getSelectedFeatures(primaryNodule, features);
-		List<String> strObservedNoduleFeatures = getSelectedFeatures(observedNodule, features);
+	public static List<String> getSelectedFeatures(Nodule nodule, List<Integer> features) {
+		List<String> selectedFeatures = new ArrayList<>();
+		for(Integer featureIndex : features) {
+			selectedFeatures.add(nodule.getFeatures().get(featureIndex-1));
+		}
+		return selectedFeatures;
+	}
+	
+	public static Double euclidianDistance(Nodule primaryNodule, Nodule observedNodule, List<GroupFeaturesEnum> features) {
+		Double sumFeaturesDifs = new Double("0");
+		List<String> strPrimaryNoduleFeatures = getFeatures(primaryNodule, features);
+		List<String> strObservedNoduleFeatures = getFeatures(observedNodule, features);
 				
-		List<BigDecimal> primaryNoduleFeatures = strPrimaryNoduleFeatures.stream().map(BigDecimal::new)
+		List<Double> primaryNoduleFeatures = strPrimaryNoduleFeatures.stream().map(Double::new)
 				.collect(Collectors.toList());
 
-		List<BigDecimal> observedNoduleFeatures = strObservedNoduleFeatures.stream().map(BigDecimal::new)
+		List<Double> observedNoduleFeatures = strObservedNoduleFeatures.stream().map(Double::new)
 				.collect(Collectors.toList());
 
 		if (strPrimaryNoduleFeatures.size() == strObservedNoduleFeatures.size()) {
-			BigDecimal featureDif;
+			Double featureDif;
 
 			for (int i = 0; i < primaryNoduleFeatures.size(); ++i) {
-				featureDif = primaryNoduleFeatures.get(i).subtract(observedNoduleFeatures.get(i));
-				sumFeaturesDifs = sumFeaturesDifs.add(featureDif.multiply(featureDif));
+				featureDif = primaryNoduleFeatures.get(i) - observedNoduleFeatures.get(i);
+				sumFeaturesDifs += featureDif * featureDif;
 			}
 		}
 
-		return sqrt(sumFeaturesDifs);
+		return Math.sqrt(sumFeaturesDifs);
 	}
 	
 	public static Double sum(List<Double> elements) {
@@ -69,5 +74,30 @@ public class Operations {
 
 	public static Double standardDeviation(List<Double> elements) {
 		return Math.sqrt(sampleVariance(elements));
+	}
+
+	public static Double euclidianDistanceBySelectedFeatures(Nodule primaryNodule, Nodule observedNodule,
+			List<Integer> features) {
+		Double sumFeaturesDifs = new Double("0");
+		List<String> strPrimaryNoduleFeatures = getSelectedFeatures(primaryNodule, features);
+		List<String> strObservedNoduleFeatures = getSelectedFeatures(observedNodule, features);
+				
+		List<Double> primaryNoduleFeatures = strPrimaryNoduleFeatures.stream().map(Double::new)
+				.collect(Collectors.toList());
+
+		List<Double> observedNoduleFeatures = strObservedNoduleFeatures.stream().map(Double::new)
+				.collect(Collectors.toList());
+
+		if (strPrimaryNoduleFeatures.size() == strObservedNoduleFeatures.size()) {
+			Double featureDif;
+
+			for (int i = 0; i < primaryNoduleFeatures.size(); ++i) {
+				featureDif = primaryNoduleFeatures.get(i) - observedNoduleFeatures.get(i);
+				sumFeaturesDifs += featureDif * featureDif;
+			}
+		}
+
+		return Math.sqrt(sumFeaturesDifs);
+
 	}
 }

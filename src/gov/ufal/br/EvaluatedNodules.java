@@ -74,6 +74,10 @@ public class EvaluatedNodules {
 		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, getFeatureName(features)));
 	}
 	
+	//		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, getFeatureName(features)));
+
+	
+	
 	public String getFeatureName(List<GroupFeaturesEnum> features){
 		StringBuilder featureName = new StringBuilder();
 		for(int i = 0; i < features.size(); i++) {
