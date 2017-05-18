@@ -29,6 +29,13 @@ public class PrecisionByFeatures {
 	public void setFeatureName(String featureName) {
 		this.featureName = featureName;
 	}
+	
+	public void showPrecisionsByRanking(){
+		System.out.println("PRECISOES POR RANKING:");
+		for(List<Double> precision : precisionsByRanking) {
+			System.out.println(precision);
+		}
+	}
 
 	public List<List<Double>> getPrecisionsByRanking() {
 		return precisionsByRanking;
@@ -89,7 +96,7 @@ public class PrecisionByFeatures {
 		 **/
 		List<Double> averagePrecisionForAllNodules = new ArrayList<>();
 		List<Double> precisionByNoduleRanking;
-		System.out.println("\nPrecisoes por ranking:\n" + getPrecisionsByRanking());
+		showPrecisionsByRanking();
 		for (int i = 0; i < aleatoryNodules.size(); i++) {
 			precisionByNoduleRanking = new ArrayList<>();
 			for (List<Double> precision : getPrecisionsByRanking()) {
@@ -98,8 +105,10 @@ public class PrecisionByFeatures {
 			averagePrecisionForAllNodules
 					.add(precisionByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
 		}
-		System.err.println("Media por ranking: " + averagePrecisionForAllNodules);
+		System.out.println("Media por ranking: " + averagePrecisionForAllNodules);
 		this.averageOfPrecisionByRanking = averagePrecisionForAllNodules;
+		setAveragePrecision();
+		System.out.println("Média da média por ranking: " + averagePrecision);
 	}
 
 	public Double getAveragePrecision() {

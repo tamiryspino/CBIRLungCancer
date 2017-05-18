@@ -65,19 +65,20 @@ public class EvaluatedNodules {
 			NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(nodule, allNodules, distanceType,
 					features, qntRanking);
 			nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
-			/*
-			 * System.out.println("Identificação: "+ identification + "\n" +
-			 * "Precisão: " +
-			 * listNearestNodulesByIntegratedFeatures.getPrecision();*/
-
 		}
 		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, getFeatureName(features)));
 	}
 	
-	//		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, getFeatureName(features)));
 
-	
-	
+	public void setNearbyNodulesByFeatures(String characteristic, List<GroupFeaturesEnum> features, Distances distanceType, int qntRanking) {
+		for (Nodule nodule : aleatoryNodulesByMalignance) {
+			NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(characteristic, nodule, allNodules, distanceType,
+					features, qntRanking);
+			nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
+		}
+		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, characteristic));
+	}
+
 	public String getFeatureName(List<GroupFeaturesEnum> features){
 		StringBuilder featureName = new StringBuilder();
 		for(int i = 0; i < features.size(); i++) {

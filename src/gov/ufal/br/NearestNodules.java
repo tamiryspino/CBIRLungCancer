@@ -1,6 +1,5 @@
 package gov.ufal.br;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -25,30 +24,15 @@ public class NearestNodules {
 		// showNearbyNodules();
 	}
 
-	public NearestNodules(Nodule nodule, Set<Nodule> allNodules, Distances distance, List<Integer> features,
-			String featureName, int qntRanking) {
+
+	public NearestNodules(String characteristic, Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
+			List<GroupFeaturesEnum> features, int qntRanking) {
 		super();
 		this.primaryNodule = primaryNodule;
-		setCharacteristic(featureName);
-		setNearbyNodulesForSelectedFeatures(allNodules, distance, features, qntRanking);
-	}
-
-	private void setNearbyNodulesForSelectedFeatures(Set<Nodule> nearbyNodules, Distances distanceFormula, List<Integer> features, int qntRanking) {
-		List<Nodule> nearestNodules = new ArrayList<>(nearbyNodules);
-		Double distance = 0.0;
-		for (Nodule nodule : nearestNodules) {
-			if (distanceFormula == Distances.EUCLIDIAN) {
-				distance = Operations.euclidianDistanceBySelectedFeatures(primaryNodule, nodule, features);
-			}
-			// TODO else if (distanceFormula == Distances.)
-			nodule.setDistance(distance);
-		}
-		// TODO Verificar pq não está ordenando
-		Collections.sort(nearestNodules, Comparator.comparing(Nodule::getDistance));
-
-		this.nearbyNodules = nearestNodules.subList(0,
-				nearestNodules.size() > qntRanking ? qntRanking : nearestNodules.size());
-
+		this.characteristic = characteristic;
+		setNearbyNodules(allNodules, distance, features, qntRanking);
+		setPrecisions();
+		// showNearbyNodules();
 	}
 
 	public void setNearbyNodules(Set<Nodule> nearbyNodules, Distances distanceFormula, List<GroupFeaturesEnum> features,
@@ -62,7 +46,6 @@ public class NearestNodules {
 			// TODO else if (distanceFormula == Distances.)
 			nodule.setDistance(distance);
 		}
-		// TODO Verificar pq não está ordenando
 		Collections.sort(nearestNodules, Comparator.comparing(Nodule::getDistance));
 
 		this.nearbyNodules = nearestNodules.subList(0,
