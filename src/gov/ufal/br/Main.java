@@ -4,8 +4,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
 
@@ -20,131 +22,63 @@ public class Main {
 		String csvSplitBy = ",";
 
 		Set<Nodule> allNodules = setAllNodules(csvFile, csvSplitBy);
-
+		Set<Nodule> benignNodules = setAllNodulesByMalignance(allNodules, "BENIGN");
+		Set<Nodule> malignantNodules = setAllNodulesByMalignance(allNodules, "MALIGNANT");
+		System.out.println("Qnt nodulos benignos: " + benignNodules.size() + "\n"
+				+ "Qnt nodulos malignos: " + malignantNodules.size());
+		
 		int qntRanking = 10;
-		int qntAleatoryNodules = 10;
 		Distances distanceType = Distances.EUCLIDIAN;
-		List<GroupFeaturesEnum> features = new ArrayList<>();
-
-		/**
-		 * Lista de 20 atributos selecionados utilizando Relieff para todas as
-		 * 121 features (nódulo, parênquima e nitidez de borda)
-		 **/
-		// Features 0 a 120
-		final List<GroupFeaturesEnum> relieffByAll = Arrays.asList(GroupFeaturesEnum.MAXIMUM_N,
-				GroupFeaturesEnum.SKEWNESS_N, GroupFeaturesEnum.SPHERICALDISPROPORTION,
-				GroupFeaturesEnum.DIFFERENCEENDS, GroupFeaturesEnum.ENERGY90_P, GroupFeaturesEnum.ROOTMEANSQUARE_N,
-				GroupFeaturesEnum.MINIMUM_N, GroupFeaturesEnum.ENERGY45_P, GroupFeaturesEnum.SKEWNESS,
-				GroupFeaturesEnum.MINIMUM_P, GroupFeaturesEnum.SURFACEAREA, GroupFeaturesEnum.MEDIAN_N,
-				GroupFeaturesEnum.SD, GroupFeaturesEnum.ENTROPY_N, GroupFeaturesEnum.STANDARDDEVIATION_N,
-				GroupFeaturesEnum.SVARIANCE, GroupFeaturesEnum.PVARIANCE, GroupFeaturesEnum.RANGE_P,
-				GroupFeaturesEnum.ENERGY0_P, GroupFeaturesEnum.VARIANCE_N);
-
-		/**
-		 * Lista de 20 atributos selecionados por Relieff para atributos de
-		 * Nódulo
-		 **/
-		// Features 0 a 58
-		final List<GroupFeaturesEnum> relieffByNodule = Arrays.asList(GroupFeaturesEnum.MAXIMUM_N,
-				GroupFeaturesEnum.AREA, GroupFeaturesEnum.SKEWNESS_N, GroupFeaturesEnum.ROOTMEANSQUARE_N,
-				GroupFeaturesEnum.SPHERICALDISPROPORTION, GroupFeaturesEnum.MINIMUM_N,
-				GroupFeaturesEnum.STANDARDDEVIATION_N, GroupFeaturesEnum.MEDIAN_N, GroupFeaturesEnum.ENTROPY_N,
-				GroupFeaturesEnum.SURFACEAREA, GroupFeaturesEnum.VARIANCE_N, GroupFeaturesEnum.ENERGY135_N,
-				GroupFeaturesEnum.ENERGY45_N, GroupFeaturesEnum.INERTIA90_N, GroupFeaturesEnum.RANGE_N,
-				GroupFeaturesEnum.INERTIA45_N, GroupFeaturesEnum.INERTIA0_N, GroupFeaturesEnum.ENERGY_N,
-				GroupFeaturesEnum.INERTIA135_N, GroupFeaturesEnum.COMPACTNESS1);
-
-		/**
-		 * Lista de 20 atributos selecionados utilizando Relieff para atributos
-		 * de Parênquima
-		 **/
-		// Features de 59 a 108
-		final List<GroupFeaturesEnum> relieffByParenchyma = Arrays.asList(GroupFeaturesEnum.ENERGY90_P,
-				GroupFeaturesEnum.ENERGY0_P, GroupFeaturesEnum.ENERGY45_P, GroupFeaturesEnum.ENERGY135_P,
-				GroupFeaturesEnum.MEAN_P, GroupFeaturesEnum.MEDIAN_P, GroupFeaturesEnum.INERTIA90_P,
-				GroupFeaturesEnum.MINIMUM_P, GroupFeaturesEnum.INERTIA45_P, GroupFeaturesEnum.INERTIA135_P,
-				GroupFeaturesEnum.ROOTMEANSQUARE_P, GroupFeaturesEnum.ENERGY_P, GroupFeaturesEnum.INERTIA0_P,
-				GroupFeaturesEnum.CORRELATION0_P, GroupFeaturesEnum.IDM90_P, GroupFeaturesEnum.CORRELATION45_P,
-				GroupFeaturesEnum.CORRELATION135_P, GroupFeaturesEnum.IDM0_P, GroupFeaturesEnum.IDM135_P,
-				GroupFeaturesEnum.IDM45_P);
-
-		/**
-		 * Lista de 20 atributos selecionados utilizando Relieff para features
-		 * de nódulo e nitidez de borda
-		 **/
-		// Features de 0 a 58 + 109 a 120
-		final List<GroupFeaturesEnum> relieffByNoduleWithEdgeSharpness = Arrays.asList(GroupFeaturesEnum.DIAMETER,
-				GroupFeaturesEnum.MAXIMUM_N, GroupFeaturesEnum.AREA, GroupFeaturesEnum.SKEWNESS_N,
-				GroupFeaturesEnum.ROOTMEANSQUARE_N, GroupFeaturesEnum.DIFFERENCEENDS, GroupFeaturesEnum.MEDIAN_N,
-				GroupFeaturesEnum.SD, GroupFeaturesEnum.MINIMUM_N, GroupFeaturesEnum.SPHERICALDISPROPORTION,
-				GroupFeaturesEnum.SVARIANCE, GroupFeaturesEnum.STANDARDDEVIATION_N, GroupFeaturesEnum.SURFACEAREA,
-				GroupFeaturesEnum.PVARIANCE, GroupFeaturesEnum.ENTROPY_N, GroupFeaturesEnum.VARIANCE_N,
-				GroupFeaturesEnum.COMPACTNESS1, GroupFeaturesEnum.RANGE_N, GroupFeaturesEnum.SKEWNESS,
-				GroupFeaturesEnum.INERTIA90_N);
-
-		/**
-		 * Lista de 20 atributos selecionados utilizando Relieff para atributos
-		 * do parênquima e nitidez de borda
-		 **/
-		// Features 59 a 120
-		final List<GroupFeaturesEnum> relieffByParenchymaWithEdgeSharpness = Arrays.asList(GroupFeaturesEnum.SKEWNESS,
-				GroupFeaturesEnum.ENERGY90_P, GroupFeaturesEnum.DIFFERENCEENDS, GroupFeaturesEnum.ENERGY0_P,
-				GroupFeaturesEnum.ENERGY45_P, GroupFeaturesEnum.SD, GroupFeaturesEnum.ENERGY135_P,
-				GroupFeaturesEnum.SVARIANCE, GroupFeaturesEnum.PVARIANCE, GroupFeaturesEnum.KURTOSIS,
-				GroupFeaturesEnum.MINIMUM_P, GroupFeaturesEnum.MEAN_P, GroupFeaturesEnum.IDM90_P,
-				GroupFeaturesEnum.MEDIAN_P, GroupFeaturesEnum.INERTIA90_P, GroupFeaturesEnum.IDM135_P,
-				GroupFeaturesEnum.INERTIA0_P, GroupFeaturesEnum.RANGE_P, GroupFeaturesEnum.IDM0_P,
-				GroupFeaturesEnum.IDM45_P);
-
-		List<GroupFeaturesEnum> csfSubsetEvalByAll = Arrays.asList(GroupFeaturesEnum.MAXIMUM_N,
-				GroupFeaturesEnum.SKEWNESS_N, GroupFeaturesEnum.AREA, GroupFeaturesEnum.DIAMETER,
-				GroupFeaturesEnum.IDM135_N, GroupFeaturesEnum.ENERGY_P);
-		List<GroupFeaturesEnum> csfSubsetEvalByParenchymaWithEdgeSharpness = Arrays.asList(GroupFeaturesEnum.AREA,
-				GroupFeaturesEnum.ENERGY_P, GroupFeaturesEnum.IDM0_P, GroupFeaturesEnum.SHADE90_P,
-				GroupFeaturesEnum.DIFFERENCEENDS, GroupFeaturesEnum.PVARIANCE);
-		List<GroupFeaturesEnum> csfSubsetEvalByParenchyma = Arrays.asList(GroupFeaturesEnum.AREA,
-				GroupFeaturesEnum.ENERGY_P);
-		List<GroupFeaturesEnum> csfSubsetEvalByNoduleOrNoduleWithEdgeSharpness = Arrays.asList(
-				GroupFeaturesEnum.MAXIMUM_N, GroupFeaturesEnum.MEAN_N, GroupFeaturesEnum.SKEWNESS_N,
-				GroupFeaturesEnum.AREA, GroupFeaturesEnum.DIAMETER, GroupFeaturesEnum.IDM135_N,
-				GroupFeaturesEnum.IDM90_N);
+		List<FeaturesEnum> features = new ArrayList<>();
 
 		/********************************
 		 * SELECIONA NÓDULOS ALEATÓRIOS *
 		 ********************************/
-		//Set<Nodule> allNodulesAuxBenign = new HashSet<>();
-		//allNodulesAuxBenign.addAll(allNodules);
-		EvaluatedNodules benignNodules = new EvaluatedNodules("BENIGN", allNodules, qntAleatoryNodules);
-		//allNodulesAuxBenign.removeAll(benignNodules.getAleatoryNodulesByMalignance());
-		//System.out.println(allNodulesAuxBenign.size());
-		EvaluatedNodules malignantNodules = new EvaluatedNodules("MALIGNANT", allNodules, qntAleatoryNodules);
-		System.out.println(qntAleatoryNodules + " nódulos aleatórios benignos foram escolhidos!");
-
-		List<EvaluatedNodules> aleatoryEvaluatedNodules = Arrays.asList(benignNodules, malignantNodules);
-
+		List<EvaluatedNodules> aleatoryEvaluatedNodules = new ArrayList<>();
+				
+		/** Leave one out para cada execução
+		 * Depois faz a média das precisões **/
+		Set<Nodule> benignNodulesWithoutOne;
+		for(Nodule noduleByMalignance : benignNodules) {
+			benignNodulesWithoutOne = new HashSet<>();
+			benignNodulesWithoutOne.addAll(benignNodules);
+			benignNodulesWithoutOne.remove(noduleByMalignance);
+			
+			aleatoryEvaluatedNodules.add(new EvaluatedNodules("BENIGN", allNodules, benignNodulesWithoutOne));
+		}
+		int qnt = 0;
+		PrecisionByFeatures precisionByAllLeaveOneOut = new PrecisionByFeatures("Relieff By All");
 		for (EvaluatedNodules aleatoryEvaluatedNodule : aleatoryEvaluatedNodules) {
 			/**
 			 * Seta os nódulos vizinhos para features selecionadas pelo
 			 * algoritmo Relieff
 			 **/
-			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures("Relieff By All", relieffByAll, distanceType,
+			qnt++;
+			System.out.println("Setando nódulos vizinhos..." + qnt);
+			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures("Relieff By All", SelectedFeaturesEnum.RELIEFF_BY_ALL, distanceType,
 					qntRanking);
-			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures("Relieff By Nodule Features", relieffByNodule,
+			//TODO get(0) pega apenas o Relieff By All
+			System.out.println(aleatoryEvaluatedNodule.getPrecisions().get(0).getAverageOfPrecisionByRanking());
+			System.out.println(aleatoryEvaluatedNodule.getPrecisions().get(0).getFeatureName());
+			precisionByAllLeaveOneOut.addListOfPrecisionsByFeature(aleatoryEvaluatedNodule.getPrecisions().get(0).getAverageOfPrecisionByRanking());
+			
+			//averagePrecisionForFeatures.add(aleatoryEvaluatedNodule.getPrecisions().get(0).getAverageOfPrecisionByRanking());
+			/*aleatoryEvaluatedNodule.setNearbyNodulesByFeatures("Relieff By Nodule Features", relieffByNodule,
 					distanceType, qntRanking);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures("Relieff By Nodule and Edge Sharpness Features",
 					relieffByNoduleWithEdgeSharpness, distanceType, qntRanking);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures("Relieff By Parenchyma Features", relieffByParenchyma,
 					distanceType, qntRanking);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures("Relieff By Parenchyma and Edge Sharpness Features",
-					relieffByParenchymaWithEdgeSharpness, distanceType, qntRanking);
-			doPrecisionNChart(aleatoryEvaluatedNodule.getPrecisions().subList(0, 5),
-					aleatoryEvaluatedNodule.getMalignance());
+					relieffByParenchymaWithEdgeSharpness, distanceType, qntRanking);*/
+//			doPrecisionNChart(aleatoryEvaluatedNodule.getPrecisions().subList(0, 5),
+//					aleatoryEvaluatedNodule.getMalignance());
 
 			/**
 			 * Seta os nódulos vizinhos para features selecionadas pelo
 			 * algoritmo csfSubsetEval
 			 **/
-			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures("csfSubsetEval By All Features", csfSubsetEvalByAll,
+	/*		aleatoryEvaluatedNodule.setNearbyNodulesByFeatures("csfSubsetEval By All Features", csfSubsetEvalByAll,
 					distanceType, qntRanking);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(
 					"csfSubsetEval By Nodule Or Nodule With Edge Sharpness Features",
@@ -155,59 +89,83 @@ public class Main {
 					csfSubsetEvalByParenchymaWithEdgeSharpness, distanceType, qntRanking);
 			doPrecisionNChart(aleatoryEvaluatedNodule.getPrecisions().subList(5, 9),
 					aleatoryEvaluatedNodule.getMalignance());
-
-			features.add(GroupFeaturesEnum.ALL_FEATURES);
+*/
+			/*features.clear();
+			features.add(FeaturesEnum.NODULE_TEXTURE);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
 
 			features.clear();
-			features.add(GroupFeaturesEnum.NODULE_TEXTURE);
+			features.add(FeaturesEnum.NODULE_SHAPE);
+			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);			
+
+			features.clear();
+			features.add(FeaturesEnum.NODULE_INTENSITY);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
 
 			features.clear();
-			features.add(GroupFeaturesEnum.NODULE_SHAPE);
+			features.add(FeaturesEnum.EDGE_SHARPNESS);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
 
 			features.clear();
-			features.add(GroupFeaturesEnum.EDGE_SHARPNESS);
+			features.add(FeaturesEnum.NODULE_SHAPE);
+			features.add(FeaturesEnum.NODULE_TEXTURE);
+			features.add(FeaturesEnum.NODULE_INTENSITY);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
 
 			features.clear();
-			features.add(GroupFeaturesEnum.NODULE_SHAPE);
-			features.add(GroupFeaturesEnum.NODULE_TEXTURE);
+			features.add(FeaturesEnum.NODULE_SHAPE);
+			features.add(FeaturesEnum.NODULE_TEXTURE);
+			features.add(FeaturesEnum.NODULE_INTENSITY);
+			features.add(FeaturesEnum.EDGE_SHARPNESS);
+			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
+//			doPrecisionNChart(aleatoryEvaluatedNodule.getPrecisions().subList(5, 11),
+//					aleatoryEvaluatedNodule.getMalignance());
+
+			features.clear();
+			features.add(FeaturesEnum.PARENCHYMA_TEXTURE);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
 
 			features.clear();
-			features.add(GroupFeaturesEnum.NODULE_SHAPE);
-			features.add(GroupFeaturesEnum.NODULE_TEXTURE);
-			features.add(GroupFeaturesEnum.EDGE_SHARPNESS);
-			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
-			doPrecisionNChart(aleatoryEvaluatedNodule.getPrecisions().subList(9, 15),
-					aleatoryEvaluatedNodule.getMalignance());
-
-			features.clear();
-			features.add(GroupFeaturesEnum.PARENCHYMA_TEXTURE);
+			features.add(FeaturesEnum.PARANCHYMA_INTENSITY);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
 
 			features.clear();
-			features.add(GroupFeaturesEnum.PARANCHYMA_INTENSITY);
+			features.add(FeaturesEnum.PARENCHYMA_TEXTURE);
+			features.add(FeaturesEnum.PARANCHYMA_INTENSITY);
 			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
 
 			features.clear();
-			features.add(GroupFeaturesEnum.PARENCHYMA_TEXTURE);
-			features.add(GroupFeaturesEnum.PARANCHYMA_INTENSITY);
-			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
-
-			features.clear();
-			features.add(GroupFeaturesEnum.PARENCHYMA_TEXTURE);
-			features.add(GroupFeaturesEnum.PARANCHYMA_INTENSITY);
-			features.add(GroupFeaturesEnum.EDGE_SHARPNESS);
-			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);
-			doPrecisionNChart(aleatoryEvaluatedNodule.getPrecisions().subList(15, 19),
-					aleatoryEvaluatedNodule.getMalignance());
-
-			doPrecisionNChart(aleatoryEvaluatedNodule.getPrecisions(), aleatoryEvaluatedNodule.getMalignance());
+			features.add(FeaturesEnum.PARENCHYMA_TEXTURE);
+			features.add(FeaturesEnum.PARANCHYMA_INTENSITY);
+			features.add(FeaturesEnum.EDGE_SHARPNESS);
+			aleatoryEvaluatedNodule.setNearbyNodulesByFeatures(features, distanceType, qntRanking);*/
+//			doPrecisionNChart(aleatoryEvaluatedNodule.getPrecisions().subList(11, 15),
+//					aleatoryEvaluatedNodule.getMalignance());
+			
+			/** Lista de lista de precisoes **/
+		/*	List<PrecisionByFeatures> precisionsOfAleatoryEvaluatedNodule = aleatoryEvaluatedNodule.getPrecisions();
+			for(int j = 0; j<precisionsOfAleatoryEvaluatedNodule.size(); j++) {
+				String characteristic;
+				precisionsOfAleatoryEvaluatedNodule[characteristic].add(aleatoryEvaluatedNodule.getPrecisions().get(j));
+			}*/
 		}
+		System.out.println("Media para todos os leave one out: " + precisionByAllLeaveOneOut.getAverageOfPrecisionByRanking()
+		+ "\n Media do array: " + precisionByAllLeaveOneOut.getAveragePrecision());
+		//doPrecisionNChart(aleatoryEvaluatedNodule.getPrecisions(), aleatoryEvaluatedNodule.getMalignance());
+		/*for(int k=0; k< averagePrecisionForFeatures.size(); k++) {
+			System.out.println(averagePrecisionForFeatures.get(k));
+		}*/
 		System.out.println("Vizinhança dos nódulos foi adicionada pela menor distância euclidiana.");
+	}
+
+	private static Set<Nodule> setAllNodulesByMalignance(Set<Nodule> allNodules, String malignance) {
+		Set<Nodule> allNodulesByMalignance = new HashSet<>();
+		for(Nodule nodule : allNodules) {
+			if(malignance.equals(nodule.getMalignance())) {
+				allNodulesByMalignance.add(nodule);
+			}
+		}
+		return allNodulesByMalignance;
 	}
 
 	public static void doPrecisionNChart(List<PrecisionByFeatures> precisions, String malignance) {
@@ -225,10 +183,11 @@ public class Main {
 		try {
 			scanner = new Scanner(csvFile);
 			scanner.nextLine(); // Pula o cabeçalho do arquivo
+			//182,199,209
 			while (scanner.hasNext()) {
 				List<String> features = Arrays.asList(scanner.nextLine().split(csvSplitBy));
 				nodule = new Nodule(features.get(features.size() - 2), // ID
-						features.subList(0, features.size() - 5), // Features
+						features.subList(0, features.size() - 4), // Features
 						features.get(features.size() - 1)); // Malignance
 				nodules.add(nodule);
 			}

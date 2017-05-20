@@ -1,6 +1,6 @@
 package gov.ufal.br;
 
-public enum GroupFeaturesEnum {
+public enum FeaturesEnum {
 
 	ALL_FEATURES("Todas features",0,120),
 	NODULE_INTENSITY("Intensidade do Nódulo",0,13),
@@ -132,12 +132,13 @@ public enum GroupFeaturesEnum {
 	KURTOSIS("kurtosis",118,119),
 	SKEWNESS("skewness",119,120),
 	SCM("scm",120,121);
+
 	
 	String featureName;
 	int inicialIndex;
 	int finalIndex;
 	
-	private GroupFeaturesEnum(String featureName, int inicialIndex, int finalIndex) {
+	private FeaturesEnum(String featureName, int inicialIndex, int finalIndex) {
 		this.featureName = featureName;
 		this.inicialIndex = inicialIndex;
 		this.finalIndex = finalIndex;

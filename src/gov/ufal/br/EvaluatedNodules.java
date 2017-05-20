@@ -15,6 +15,12 @@ public class EvaluatedNodules {
 	private List<PrecisionByFeatures> precisions = new ArrayList<>();
 	//TODO DESVIO PADRÃO
 
+	public EvaluatedNodules(String malignance, Set<Nodule> allNodules, Set<Nodule> allNodulesWithouOne) {
+		this.malignance = malignance;
+		this.allNodules = allNodules;
+		this.aleatoryNodulesByMalignance = allNodulesWithouOne;
+	}
+	
 	public EvaluatedNodules(String malignance, Set<Nodule> allNodules, int qntAleatoryNodules) {
 		super();
 		this.malignance = malignance;
@@ -60,7 +66,7 @@ public class EvaluatedNodules {
 	 * nódulos vizinhos com as features integradas (caso haja mais de uma
 	 * feature)
 	 **/
-	public void setNearbyNodulesByFeatures(List<GroupFeaturesEnum> features, Distances distanceType, int qntRanking) {
+	public void setNearbyNodulesByFeatures(List<FeaturesEnum> features, Distances distanceType, int qntRanking) {
 		for (Nodule nodule : aleatoryNodulesByMalignance) {
 			NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(nodule, allNodules, distanceType,
 					features, qntRanking);
@@ -70,16 +76,16 @@ public class EvaluatedNodules {
 	}
 	
 
-	public void setNearbyNodulesByFeatures(String characteristic, List<GroupFeaturesEnum> features, Distances distanceType, int qntRanking) {
+	public void setNearbyNodulesByFeatures(String characteristic, SelectedFeaturesEnum selectedFeatures, Distances distanceType, int qntRanking) {
 		for (Nodule nodule : aleatoryNodulesByMalignance) {
 			NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(characteristic, nodule, allNodules, distanceType,
-					features, qntRanking);
+					selectedFeatures.getFeatures(), qntRanking);
 			nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
 		}
 		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, characteristic));
 	}
 
-	public String getFeatureName(List<GroupFeaturesEnum> features){
+	public String getFeatureName(List<FeaturesEnum> features){
 		StringBuilder featureName = new StringBuilder();
 		for(int i = 0; i < features.size(); i++) {
 			featureName.append(features.get(i).getFeatureName());

@@ -15,7 +15,7 @@ public class NearestNodules {
 	Double averagePrecision;
 
 	public NearestNodules(Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
-			List<GroupFeaturesEnum> features, int qntRanking) {
+			List<FeaturesEnum> features, int qntRanking) {
 		super();
 		this.primaryNodule = primaryNodule;
 		setCharacteristic(features);
@@ -26,7 +26,7 @@ public class NearestNodules {
 
 
 	public NearestNodules(String characteristic, Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
-			List<GroupFeaturesEnum> features, int qntRanking) {
+			List<FeaturesEnum> features, int qntRanking) {
 		super();
 		this.primaryNodule = primaryNodule;
 		this.characteristic = characteristic;
@@ -35,7 +35,7 @@ public class NearestNodules {
 		// showNearbyNodules();
 	}
 
-	public void setNearbyNodules(Set<Nodule> nearbyNodules, Distances distanceFormula, List<GroupFeaturesEnum> features,
+	public void setNearbyNodules(Set<Nodule> nearbyNodules, Distances distanceFormula, List<FeaturesEnum> features,
 			int qntRanking) {
 		List<Nodule> nearestNodules = new ArrayList<>(nearbyNodules);
 		Double distance = 0.0;
@@ -64,7 +64,7 @@ public class NearestNodules {
 		this.characteristic = characteristic;
 	}
 
-	private void setCharacteristic(List<GroupFeaturesEnum> features) {
+	private void setCharacteristic(List<FeaturesEnum> features) {
 		StringBuilder featureName = new StringBuilder();
 		for (int i = 0; i < features.size(); i++) {
 			featureName.append(features.get(i).getFeatureName());
