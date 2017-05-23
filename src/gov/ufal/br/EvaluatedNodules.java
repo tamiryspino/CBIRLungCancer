@@ -67,22 +67,34 @@ public class EvaluatedNodules {
 	 * feature)
 	 **/
 	public void setNearbyNodulesByFeatures(List<FeaturesEnum> features, Distances distanceType, int qntRanking) {
+		if (!features.isEmpty()) {
+			for (Nodule nodule : aleatoryNodulesByMalignance) {
+				NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(nodule, allNodules, distanceType,
+						features, qntRanking);
+				nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
+			}
+			this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, getFeatureName(features)));
+			//showSelectedFeatures(features);
+		}
+	}
+	
+	public void setNearbyNodulesByFeatures(FeaturesEnum features, Distances distanceType, int qntRanking) {
 		for (Nodule nodule : aleatoryNodulesByMalignance) {
 			NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(nodule, allNodules, distanceType,
 					features, qntRanking);
 			nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
 		}
-		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, getFeatureName(features)));
+		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, features.getFeatureName()));
 	}
 	
 
-	public void setNearbyNodulesByFeatures(String characteristic, SelectedFeaturesEnum selectedFeatures, Distances distanceType, int qntRanking) {
+	public void setNearbyNodulesByFeatures(SelectedFeaturesEnum selectedFeatures, Distances distanceType, int qntRanking) {
 		for (Nodule nodule : aleatoryNodulesByMalignance) {
-			NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(characteristic, nodule, allNodules, distanceType,
+			NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(nodule, allNodules, distanceType,
 					selectedFeatures.getFeatures(), qntRanking);
 			nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
 		}
-		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, characteristic));
+		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, selectedFeatures.getGroupName()));
 	}
 
 	public String getFeatureName(List<FeaturesEnum> features){

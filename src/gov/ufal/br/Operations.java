@@ -19,7 +19,36 @@ public class Operations {
 		return selectedFeatures;
 	}
 	
+	public static List<String> getFeatures(Nodule nodule, FeaturesEnum feature) {
+		List<String> selectedFeatures = new ArrayList<>();
+		selectedFeatures.addAll(nodule.getFeatures().subList(feature.getInicialIndex(), feature.getFinalIndex()));
+		return selectedFeatures;
+	}
+	
 	public static Double euclidianDistance(Nodule primaryNodule, Nodule observedNodule, List<FeaturesEnum> features) {
+		Double sumFeaturesDifs = 0.0;
+		List<String> strPrimaryNoduleFeatures = getFeatures(primaryNodule, features);
+		List<String> strObservedNoduleFeatures = getFeatures(observedNodule, features);
+				
+		List<Double> primaryNoduleFeatures = strPrimaryNoduleFeatures.stream().map(Double::new)
+				.collect(Collectors.toList());
+
+		List<Double> observedNoduleFeatures = strObservedNoduleFeatures.stream().map(Double::new)
+				.collect(Collectors.toList());
+
+		if (strPrimaryNoduleFeatures.size() == strObservedNoduleFeatures.size()) {
+			Double featureDif;
+
+			for (int i = 0; i < primaryNoduleFeatures.size(); ++i) {
+				featureDif = primaryNoduleFeatures.get(i) - observedNoduleFeatures.get(i);
+				sumFeaturesDifs += featureDif * featureDif;
+			}
+		}
+
+		return Math.sqrt(sumFeaturesDifs);
+	}
+	
+	public static Double euclidianDistance(Nodule primaryNodule, Nodule observedNodule, FeaturesEnum features) {
 		Double sumFeaturesDifs = new Double("0");
 		List<String> strPrimaryNoduleFeatures = getFeatures(primaryNodule, features);
 		List<String> strObservedNoduleFeatures = getFeatures(observedNodule, features);

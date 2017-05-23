@@ -2,15 +2,6 @@ package gov.ufal.br;
 
 public enum FeaturesEnum {
 
-	ALL_FEATURES("Todas features",0,120),
-	NODULE_INTENSITY("Intensidade do Nódulo",0,13),
-	NODULE_SHAPE("Forma do Nódulo", 14, 22),
-	NODULE_TEXTURE("Textura do Nódulo", 23, 58),
-	PARANCHYMA_INTENSITY("Intensidade do Parênquima", 59, 72),
-	PARENCHYMA_TEXTURE("Textura do Parênquima", 73, 108),
-	EDGE_SHARPNESS("Nitidez de Borda", 109, 120),
-	MALIGNANCE("Malignancia", 122, 123),
-	
 	ENERGY_N("energy_N",0,1),
 	ENTROPY_N("entropy_N",1,2),
 	KURTOSIS_N("kurtosis_N",2,3),
@@ -132,7 +123,6 @@ public enum FeaturesEnum {
 	KURTOSIS("kurtosis",118,119),
 	SKEWNESS("skewness",119,120),
 	SCM("scm",120,121);
-
 	
 	String featureName;
 	int inicialIndex;

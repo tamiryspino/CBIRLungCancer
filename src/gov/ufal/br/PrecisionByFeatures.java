@@ -11,6 +11,7 @@ public class PrecisionByFeatures {
 	List<List<Double>> precisionsByRanking;
 	List<Double> averageOfPrecisionByRanking;
 	Double averagePrecision;
+	Double standartDeviation;
 
 	public PrecisionByFeatures(Set<Nodule> aleatoryNodules, String featureName) {
 		super();
@@ -20,6 +21,7 @@ public class PrecisionByFeatures {
 		setPrecisionsByRanking();
 		setAverageOfPrecisionByRanking();
 		setAveragePrecision();
+		setStandartDeviation();
 	}
 	
 	public PrecisionByFeatures(String featureName) {
@@ -33,6 +35,13 @@ public class PrecisionByFeatures {
 		this.precisionsByRanking.add(listOfPrecisionsByRanking);
 		setAverageOfPrecisionByRanking();
 		setAveragePrecision();
+		setStandartDeviation();
+	}
+	
+	public void updatePrecision() {
+		setAverageOfPrecisionByRanking();
+		setAveragePrecision();
+		setStandartDeviation();
 	}
 
 	public String getFeatureName() {
@@ -111,7 +120,7 @@ public class PrecisionByFeatures {
 		List<Double> precisionByNoduleRanking;
 		//showPrecisionsByRanking();
 		List<List<Double>> allAveragePrecisionsOfAllAleatoryNodules = getPrecisionsByRanking();
-		System.out.println(allAveragePrecisionsOfAllAleatoryNodules.size());
+		//System.out.println(allAveragePrecisionsOfAllAleatoryNodules.size());
 		int qntRanking = allAveragePrecisionsOfAllAleatoryNodules.get(0).size();
 		for(int j = 0; j < qntRanking; j++) {
 			precisionByNoduleRanking = new ArrayList<>();
@@ -126,10 +135,10 @@ public class PrecisionByFeatures {
 			.add(precisionByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
 			//System.out.println("Media do lugar: "+ precisionByNoduleRanking.stream().mapToDouble(a -> a).average().orElse(0));
 		}
-		System.out.println("Media geral por ranking para leave one out: " + averagePrecisionForAllNodules);
+		//System.out.println("Media geral por ranking para leave one out: " + averagePrecisionForAllNodules);
 		this.averageOfPrecisionByRanking = averagePrecisionForAllNodules;
 		setAveragePrecision();
-		System.out.println("Média da média por ranking: " + averagePrecision);
+		//System.out.println("Média da média por ranking: " + averagePrecision);
 	}
 
 	public Double getAveragePrecision() {
@@ -138,6 +147,14 @@ public class PrecisionByFeatures {
 
 	public void setAveragePrecision() {
 		this.averagePrecision = averageOfPrecisionByRanking.stream().mapToDouble(a -> a).average().orElse(0);
+	}
+	
+	public void setStandartDeviation() {
+		this.standartDeviation = Operations.standardDeviation(averageOfPrecisionByRanking);
+	}
+	
+	public Double getStandartDeviation() {
+		return standartDeviation;
 	}
 
 }

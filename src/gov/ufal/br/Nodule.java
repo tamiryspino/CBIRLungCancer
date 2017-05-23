@@ -9,7 +9,7 @@ public class Nodule {
 	List<String> features;
 	List<NearestNodules> nearbyNodules;
 	String malignance;
-	Double distance = 0.0;
+	Double distance = 1000.0;
 	
 	public Nodule(String id, List<String> features, String malignance) {
 		super();

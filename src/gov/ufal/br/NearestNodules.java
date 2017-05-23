@@ -24,7 +24,16 @@ public class NearestNodules {
 		// showNearbyNodules();
 	}
 
-
+	public NearestNodules(Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
+			FeaturesEnum features, int qntRanking) {
+		super();
+		this.primaryNodule = primaryNodule;
+		setCharacteristic(features);
+		setNearbyNodules(allNodules, distance, features, qntRanking);
+		setPrecisions();
+		// showNearbyNodules();
+	}
+	
 	public NearestNodules(String characteristic, Nodule primaryNodule, Set<Nodule> allNodules, Distances distance,
 			List<FeaturesEnum> features, int qntRanking) {
 		super();
@@ -52,6 +61,23 @@ public class NearestNodules {
 				nearestNodules.size() > qntRanking ? qntRanking : nearestNodules.size());
 	}
 
+	public void setNearbyNodules(Set<Nodule> nearbyNodules, Distances distanceFormula, FeaturesEnum features,
+			int qntRanking) {
+		List<Nodule> nearestNodules = new ArrayList<>(nearbyNodules);
+		Double distance = 0.0;
+		for (Nodule nodule : nearestNodules) {
+			if (distanceFormula == Distances.EUCLIDIAN) {
+				distance = Operations.euclidianDistance(primaryNodule, nodule, features);
+			}
+			// TODO else if (distanceFormula == Distances.)
+			nodule.setDistance(distance);
+		}
+		Collections.sort(nearestNodules, Comparator.comparing(Nodule::getDistance));
+
+		this.nearbyNodules = nearestNodules.subList(0,
+				nearestNodules.size() > qntRanking ? qntRanking : nearestNodules.size());
+	}
+
 	public Nodule getPrimaryNodule() {
 		return primaryNodule;
 	}
@@ -62,6 +88,11 @@ public class NearestNodules {
 
 	public void setCharacteristic(String characteristic) {
 		this.characteristic = characteristic;
+	}
+	
+
+	private void setCharacteristic(FeaturesEnum features) {
+		this.characteristic = features.getFeatureName();
 	}
 
 	private void setCharacteristic(List<FeaturesEnum> features) {
