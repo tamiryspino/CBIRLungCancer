@@ -72,7 +72,7 @@ public class Main {
         	titulos.add(relieff.getFeatures().size() + " Features");
         }
         CSVUtils.writeLine(writer, titulos);
-		List<PrecisionByRanking> precisionsForNodule = evaluateNodules(malignantNodules, allNodules, relieffForNodule, distanceType, qntRanking, "BENIGN", writer);
+		List<PrecisionByRanking> precisionsForNodule = evaluateNodules(malignantNodules, allNodules, relieffForNodule, distanceType, qntRanking, "MALIGNANT", writer);
 
 		CSVUtils.writeLine(writer, Arrays.asList(""));
         
@@ -89,7 +89,7 @@ public class Main {
         }
         CSVUtils.writeLine(writer, titulos);
         
-		List<PrecisionByRanking> precisionsForParenchyma = evaluateNodules(malignantNodules, allNodules, relieffForParenchyma, distanceType, qntRanking, "BENIGN", writer);
+		List<PrecisionByRanking> precisionsForParenchyma = evaluateNodules(malignantNodules, allNodules, relieffForParenchyma, distanceType, qntRanking, "MALIGNANT", writer);
 
 		CSVUtils.writeLine(writer, Arrays.asList(""));
 		CSVUtils.writeLine(writer, Arrays.asList(""));
