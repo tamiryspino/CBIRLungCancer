@@ -71,7 +71,7 @@ public class EvaluatedNodules {
 			for (Nodule nodule : aleatoryNodulesByMalignance) {
 				NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(nodule, allNodules, distanceType,
 						features, qntRanking);
-				nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
+				//nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
 			}
 			this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, getFeatureName(features)));
 			//showSelectedFeatures(features);
@@ -82,7 +82,7 @@ public class EvaluatedNodules {
 		for (Nodule nodule : aleatoryNodulesByMalignance) {
 			NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(nodule, allNodules, distanceType,
 					features, qntRanking);
-			nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
+			//nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
 		}
 		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, features.getFeatureName()));
 	}
@@ -92,7 +92,7 @@ public class EvaluatedNodules {
 		for (Nodule nodule : aleatoryNodulesByMalignance) {
 			NearestNodules listNearestNodulesByIntegratedFeatures = new NearestNodules(nodule, allNodules, distanceType,
 					selectedFeatures.getFeatures(), qntRanking);
-			nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
+			//nodule.addNearestNodules(listNearestNodulesByIntegratedFeatures);
 		}
 		this.precisions.add(new PrecisionByFeatures(aleatoryNodulesByMalignance, selectedFeatures.getGroupName()));
 	}

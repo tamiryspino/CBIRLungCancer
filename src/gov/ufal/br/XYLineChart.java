@@ -30,7 +30,7 @@ public class XYLineChart extends ApplicationFrame {
 	 */
 	private static final long serialVersionUID = 7097736463433624021L;
 
-	public XYLineChart(String nameOfFile, List<PrecisionByFeatures> precisions, String applicationTitle, String chartTitle) throws IOException {
+	public XYLineChart(String nameOfFile, List<PrecisionByRanking> precisions, String applicationTitle, String chartTitle) throws IOException {
 		super(applicationTitle);
 		JFreeChart xylineChart = ChartFactory.createXYLineChart(chartTitle, "Nodule", "Precision",
 				createDataset(precisions), PlotOrientation.VERTICAL, true, true, false);
@@ -64,14 +64,14 @@ public class XYLineChart extends ApplicationFrame {
 	    ChartUtilities.saveChartAsJPEG( XYChart, xylineChart, 560, 367);
 	}
 
-	private XYSeriesCollection createDataset(List<PrecisionByFeatures> precisions) {
+	private XYSeriesCollection createDataset(List<PrecisionByRanking> precisions) {
 		XYSeriesCollection dataset = new XYSeriesCollection();
 		XYSeries nodules;
 		int noduleCount;
-		for (PrecisionByFeatures precision : precisions) {
-			nodules = new XYSeries(precision.getFeatureName());
+		for (PrecisionByRanking precision : precisions) {
+			nodules = new XYSeries(precision.getGroupName());
 			noduleCount = 0;
-			for (Double p : precision.getAverageOfPrecisionByRanking()) {
+			for (Double p : precision.getPrecisionOfAll()) {
 				nodules.add(noduleCount, p);
 				noduleCount++;
 			}

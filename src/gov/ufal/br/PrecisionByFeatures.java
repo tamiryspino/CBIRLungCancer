@@ -78,9 +78,9 @@ public class PrecisionByFeatures {
 		List<List<Double>> precisionForAllNodules = new ArrayList<>();
 		int index = -1;
 		for (int j = 0; j < qntOfNoduleNearestNodules; j++) {
-			if(aleatoryNodules.iterator().next().getNearbyNodules().get(j).getCharacteristic().equals(featureName)) {
-				index = j;
-			}
+//			if(aleatoryNodules.iterator().next().getNearbyNodules().get(j).getCharacteristic().equals(featureName)) {
+//				index = j;
+//			}
 		}
 			//System.out.println(aleatoryNodules);
 			/**
@@ -90,8 +90,8 @@ public class PrecisionByFeatures {
 			 **/
 		//System.out.println("Calculando a média das precisões de " + featureName + " por ranking");
 		for (Nodule n : aleatoryNodules) {
-			precisionForAllNodules.add(n.getNearbyNodules().get(index).getPrecisions());
-			// System.out.println(n.getNearbyNodules().get(j).getPrecision());
+//			precisionForAllNodules.add(n.getNearbyNodules().get(index).getPrecisions());
+//			// System.out.println(n.getNearbyNodules().get(j).getPrecision());
 			
 		}
 		this.precisionsByRanking = precisionForAllNodules;
