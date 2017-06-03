@@ -19,15 +19,29 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 
-		String nameFile = "/home/tamirysp/Documentos/TCC/tcc/smallSolidNodulesFeatures_Tamirys.csv";
+		String nameFile = "/home/tamirysp/Documentos/TCC/tcc/smallSolidNodulesFeatures_Tamirys_normalized_ok.csv";
 
 		File csvFile = new File(nameFile);
 		String csvSplitBy = ",";
-		int qntRanking = 10;
+		Integer qntRanking = 10;
 		Distances distanceType = Distances.EUCLIDIAN;
 
+		Double max_RELIEFF_NODULE_SHAPE = 0.0; 
+		Double max_RELIEFF_NODULE_INTENSITY = 0.0; 
+		Double max_RELIEFF_NODULE_INTENSITY_SHAPE = 0.0;
+		Double max_RELIEFF_NODULE_TEXTURE = 0.0;
+		Double max_RELIEFF_NODULE_SHAPE_TEXTURE = 0.0;
+		Double max_RELIEFF_NODULE_INTENSITY_TEXTURE = 0.0;
+		Double max_RELIEFF_NODULE = 0.0;
+		Double max_RELIEFF_PARANCHYMA_INTENSITY = 0.0; 
+		Double max_RELIEFF_PARENCHYMA_TEXTURE = 0.0;
+		Double max_RELIEFF_PARENCHYMA = 0.0;
+		Double max_RELIEFF_NODULE_WITH_PARENCHYMA = 0.0;
+		Double max_RELIEFF_NODULE_WITH_EDGE_SHARPNESS = 0.0;
+		Double max_RELIEFF_PARENCHYMA_WITH_EDGE_SHARPNESS = 0.0;
+		Double max_RELIEFF_BY_ALL = 0.0;
 		/** Max 59 features **/
-		List<SelectedFeaturesEnum> relieffForNodule = Arrays.asList(
+		List<SelectedFeaturesEnum> relieff_f = Arrays.asList(
 				SelectedFeaturesEnum.RELIEFF_NODULE_SHAPE, 
 				SelectedFeaturesEnum.RELIEFF_NODULE_INTENSITY, 
 				SelectedFeaturesEnum.RELIEFF_NODULE_INTENSITY_SHAPE,
@@ -35,127 +49,98 @@ public class Main {
 				SelectedFeaturesEnum.RELIEFF_NODULE_SHAPE_TEXTURE,
 				SelectedFeaturesEnum.RELIEFF_NODULE_INTENSITY_TEXTURE,
 				SelectedFeaturesEnum.RELIEFF_NODULE,
-				SelectedFeaturesEnum.RELIEFF_NODULE_WITH_EDGE_SHARPNESS,
-				SelectedFeaturesEnum.RELIEFF_NODULE_WITH_PARENCHYMA,
-				SelectedFeaturesEnum.RELIEFF_BY_ALL);
-
-		/**Max 50 features **/
-		List<SelectedFeaturesEnum> relieffForParenchyma = Arrays.asList(
 				SelectedFeaturesEnum.RELIEFF_PARANCHYMA_INTENSITY, 
 				SelectedFeaturesEnum.RELIEFF_PARENCHYMA_TEXTURE,
 				SelectedFeaturesEnum.RELIEFF_PARENCHYMA,
-				SelectedFeaturesEnum.RELIEFF_PARENCHYMA_WITH_EDGE_SHARPNESS,
 				SelectedFeaturesEnum.RELIEFF_NODULE_WITH_PARENCHYMA,
+				SelectedFeaturesEnum.RELIEFF_NODULE_WITH_EDGE_SHARPNESS,
+				SelectedFeaturesEnum.RELIEFF_PARENCHYMA_WITH_EDGE_SHARPNESS,
 				SelectedFeaturesEnum.RELIEFF_BY_ALL);
 
+		
 		Set<Nodule> allNodules = setAllNodules(csvFile, csvSplitBy);
 		Set<Nodule> benignNodules = setAllNodulesByMalignance(allNodules, "BENIGN");
 		Set<Nodule> malignantNodules = setAllNodulesByMalignance(allNodules, "MALIGNANT");
 		System.out.println("Qnt nodulos benignos: " + benignNodules.size() + "\n" + "Qnt nodulos malignos: "
 				+ malignantNodules.size());
 
-		String resultsFile = "/home/tamirysp/Documentos/TCC/tcc/resultados_3_Tamirys.csv";
-        FileWriter writer = new FileWriter(resultsFile);
-        
-
-		CSVUtils.writeLine(writer, Arrays.asList("NODULOS MALIGNOS"));
+		String resultsFile = "/home/tamirysp/Documentos/TCC/tcc/novosResultados_new_all_Tamirys.csv";
+		FileWriter writer = new FileWriter(resultsFile);
 		
-        List<String> titulos = new ArrayList<>();
-        titulos.add("Qnt Features");
-        for(SelectedFeaturesEnum relieff : relieffForNodule) {
-        	titulos.add(relieff.getGroupName());
-        }
-        CSVUtils.writeLine(writer, titulos);
-        titulos = new ArrayList<>();
-        titulos.add("");
-        for(SelectedFeaturesEnum relieff : relieffForNodule) {
-        	titulos.add(relieff.getFeatures().size() + " Features");
-        }
-        CSVUtils.writeLine(writer, titulos);
-		List<PrecisionByRanking> precisionsForNodule = evaluateNodules(malignantNodules, allNodules, relieffForNodule, distanceType, qntRanking, "MALIGNANT", writer);
-
-		CSVUtils.writeLine(writer, Arrays.asList(""));
-        
-		titulos = new ArrayList<>();
-		titulos.add("Qnt Features");
-		for(SelectedFeaturesEnum relieff : relieffForParenchyma) {
-        	titulos.add(relieff.getGroupName());
-        }
-        CSVUtils.writeLine(writer, titulos);
-        titulos = new ArrayList<>();
-        titulos.add("");
-        for(SelectedFeaturesEnum relieff : relieffForParenchyma) {
-        	titulos.add(relieff.getFeatures().size() + " Features");
-        }
-        CSVUtils.writeLine(writer, titulos);
-        
-		List<PrecisionByRanking> precisionsForParenchyma = evaluateNodules(malignantNodules, allNodules, relieffForParenchyma, distanceType, qntRanking, "MALIGNANT", writer);
-
-		CSVUtils.writeLine(writer, Arrays.asList(""));
-		CSVUtils.writeLine(writer, Arrays.asList(""));
-		
-		CSVUtils.writeLine(writer, Arrays.asList(""));
-		
-		CSVUtils.writeLine(writer, Arrays.asList("NODULOS BENIGNOS"));
-		
-		
-        titulos = new ArrayList<>();
-        titulos.add("Qnt Features");
-        for(SelectedFeaturesEnum relieff : relieffForNodule) {
-        	titulos.add(relieff.getGroupName());
-        }
-        CSVUtils.writeLine(writer, titulos);
-        titulos = new ArrayList<>();
-        titulos.add("");
-        for(SelectedFeaturesEnum relieff : relieffForNodule) {
-        	titulos.add(relieff.getFeatures().size() + " Features");
-        }
-        CSVUtils.writeLine(writer, titulos);
-		List<PrecisionByRanking> precisionsForNoduleB = evaluateNodules(benignNodules, allNodules, relieffForNodule, distanceType, qntRanking, "BENIGN", writer);
-
-		CSVUtils.writeLine(writer, Arrays.asList(""));
-        
-		titulos = new ArrayList<>();
-		titulos.add("Qnt Features");
-		for(SelectedFeaturesEnum relieff : relieffForParenchyma) {
-        	titulos.add(relieff.getGroupName());
-        }
-        CSVUtils.writeLine(writer, titulos);
-        titulos = new ArrayList<>();
-        titulos.add("");
-        for(SelectedFeaturesEnum relieff : relieffForParenchyma) {
-        	titulos.add(relieff.getFeatures().size() + " Features");
-        }
-        CSVUtils.writeLine(writer, titulos);
-        
-		List<PrecisionByRanking> precisionsForParenchymaB = evaluateNodules(benignNodules, allNodules, relieffForParenchyma, distanceType, qntRanking, "BENIGN", writer);
-
-		CSVUtils.writeLine(writer, Arrays.asList(""));
-		
-		
-		writer.flush();
-        writer.close();
-        System.out.println("Ok! Finalizado.");
+		Integer qntSelectedFeatures = 1;
+		while(qntSelectedFeatures < 130) {
+			CSVUtils.writeLine(writer, Arrays.asList("NODULOS MALIGNOS - "+ qntSelectedFeatures + "Features selecionadas"));
+			
+			List<String> titulos = new ArrayList<>();
+			titulos.add("Qnt Nodulos");
+			for(SelectedFeaturesEnum relieff : relieff_f) {
+				titulos.add(relieff.getGroupName());
+			}
+			CSVUtils.writeLine(writer, titulos);
+			titulos = new ArrayList<>();
+			titulos.add("");
+			for(SelectedFeaturesEnum relieff : relieff_f) {
+				titulos.add(relieff.getFeatures().size() + " Features");
+			}
+			CSVUtils.writeLine(writer, titulos);
+			for(int qnt = 1; qnt<=qntRanking; qnt++) {
+		        
+				List<PrecisionByRanking> precisionsForNodule = evaluateNodules(malignantNodules, allNodules, relieff_f, distanceType, qnt, "MALIGNANT", writer, qntSelectedFeatures);
+			}
+			CSVUtils.writeLine(writer, Arrays.asList(""));
+			CSVUtils.writeLine(writer, Arrays.asList(""));
+	
+			CSVUtils.writeLine(writer, Arrays.asList("NODULOS BENIGNOS- "+ qntSelectedFeatures + "Features selecionadas"));
+	
+			titulos = new ArrayList<>();
+			titulos.add("Qnt Nodulos");
+			for (SelectedFeaturesEnum relieff : relieff_f) {
+				titulos.add(relieff.getGroupName());
+			}
+			CSVUtils.writeLine(writer, titulos);
+			titulos = new ArrayList<>();
+			titulos.add("");
+			for (SelectedFeaturesEnum relieff : relieff_f) {
+				titulos.add(relieff.getFeatures().size() + " Features");
+			}
+			CSVUtils.writeLine(writer, titulos);
+			for (int qnt = 1; qnt <= qntRanking; qnt++) {
+			    List<PrecisionByRanking> precisionsForNoduleB = evaluateNodules(benignNodules, allNodules, relieff_f, distanceType, qnt, "BENIGN", writer, qntSelectedFeatures);	        
+			}
+		    CSVUtils.writeLine(writer, Arrays.asList(""));
+			writer.flush();
+			if (qntSelectedFeatures < 20) {
+				qntSelectedFeatures += 1;
+			} else {
+				qntSelectedFeatures +=5;
+			}
+		}
+		writer.close();
+	    System.out.println("Ok! Finalizado.");
 	}
 	
 	private static List<PrecisionByRanking> evaluateNodules(Set<Nodule> nodulesByMalignance, Set<Nodule> allNodules,
-			List<SelectedFeaturesEnum> relieffFeatures, Distances distanceType, int qntRanking, String malignance, FileWriter writer) throws IOException {
-		Integer qntOfSelectedFeatures = 5;
+			List<SelectedFeaturesEnum> relieffFeatures, Distances distanceType,Integer qntRanking, String malignance, FileWriter writer,
+			Integer qntOfSelectedFeatures) throws IOException {
+		
 		List<List<Double>> precisionsOfNearestNodules;
 		List<FeaturesEnum> selectedFeatures;
 		List<PrecisionByRanking> allPrecisionsByRelieffFeatures = new ArrayList<>();
 		
 		List<String> meanAndStandartDeviation;
 		String groupName = null;
-		while (qntOfSelectedFeatures < 130) {
+		//while (qntOfSelectedFeatures < 130) {
 			allPrecisionsByRelieffFeatures = new ArrayList<>();
 			meanAndStandartDeviation = new ArrayList<>();
-			meanAndStandartDeviation.add(qntOfSelectedFeatures.toString());
+			meanAndStandartDeviation.add(qntRanking.toString());//qntOfSelectedFeatures.toString());
 			for(SelectedFeaturesEnum relieff : relieffFeatures) {
 				groupName = relieff.getGroupName();
 				precisionsOfNearestNodules = new ArrayList<>();
 				selectedFeatures = relieff.getFeatures().subList(0, 
 						relieff.getFeatures().size() > qntOfSelectedFeatures ? qntOfSelectedFeatures : relieff.getFeatures().size());
+				if (relieff.getFeatures().size() < qntOfSelectedFeatures){
+					break;
+				}
 				//showSelectedFeatures(selectedFeatures);
 				List<Nodule> nearbyNodules;
 				for(Nodule nodule : nodulesByMalignance) {
@@ -167,8 +152,12 @@ public class Main {
 			}
 			doPrecisionNChart("_"+qntOfSelectedFeatures+"_"+groupName+"_" + malignance, allPrecisionsByRelieffFeatures, malignance);
 			CSVUtils.writeLine(writer, meanAndStandartDeviation);
-			qntOfSelectedFeatures +=5;
-		}
+			/*if (qntOfSelectedFeatures < 20) {
+				qntOfSelectedFeatures += 1;
+			} else {
+				qntOfSelectedFeatures +=5;
+			}*/
+		//}
 		return allPrecisionsByRelieffFeatures;
 	}
 	
