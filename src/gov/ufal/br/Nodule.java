@@ -1,21 +1,18 @@
 package gov.ufal.br;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.mongodb.util.Hash;
-
 public class Nodule {
 
 	String id;
-	List<String> features;
+	List<Double> features;
 	Set<Nodule> nearbyNodules;
 	String malignance;
 	Double distance = 1000.0;
 	
-	public Nodule(String id, List<String> features, String malignance) {
+	public Nodule(String id, List<Double> features, String malignance) {
 		super();
 		this.id = id;
 		this.features = features;
@@ -39,11 +36,11 @@ public class Nodule {
 		this.id = id;
 	}
 
-	public List<String> getFeatures() {
+	public List<Double> getFeatures() {
 		return features;
 	}
 
-	public void setFeatures(List<String> features) {
+	public void setFeatures(List<Double> features) {
 		this.features = features;
 	}
 	

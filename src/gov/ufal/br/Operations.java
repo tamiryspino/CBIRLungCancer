@@ -11,32 +11,26 @@ public class Operations {
 	    return Double.valueOf(Math.sqrt(value.doubleValue()));
 	}
 	
-	public static List<String> getFeatures(Nodule nodule, List<FeaturesEnum> features) {
-		List<String> selectedFeatures = new ArrayList<>();
+	public static List<Double> getFeatures(Nodule nodule, List<FeaturesEnum> features) {
+		List<Double> selectedFeatures = new ArrayList<>();
 		for(FeaturesEnum feature : features) {
 			selectedFeatures.addAll(nodule.getFeatures().subList(feature.getInicialIndex(), feature.getFinalIndex()));
 		}
 		return selectedFeatures;
 	}
 	
-	public static List<String> getFeatures(Nodule nodule, FeaturesEnum feature) {
-		List<String> selectedFeatures = new ArrayList<>();
+	public static List<Double> getFeatures(Nodule nodule, FeaturesEnum feature) {
+		List<Double> selectedFeatures = new ArrayList<>();
 		selectedFeatures.addAll(nodule.getFeatures().subList(feature.getInicialIndex(), feature.getFinalIndex()));
 		return selectedFeatures;
 	}
 	
 	public static Double euclidianDistance(Nodule primaryNodule, Nodule observedNodule, List<FeaturesEnum> features) {
 		Double sumFeaturesDifs = 0.0;
-		List<String> strPrimaryNoduleFeatures = getFeatures(primaryNodule, features);
-		List<String> strObservedNoduleFeatures = getFeatures(observedNodule, features);
+		List<Double> primaryNoduleFeatures = getFeatures(primaryNodule, features);
+		List<Double> observedNoduleFeatures = getFeatures(observedNodule, features);
 				
-		List<Double> primaryNoduleFeatures = strPrimaryNoduleFeatures.stream().map(Double::new)
-				.collect(Collectors.toList());
-
-		List<Double> observedNoduleFeatures = strObservedNoduleFeatures.stream().map(Double::new)
-				.collect(Collectors.toList());
-
-		if (strPrimaryNoduleFeatures.size() == strObservedNoduleFeatures.size()) {
+		if (primaryNoduleFeatures.size() == observedNoduleFeatures.size()) {
 			Double featureDif;
 
 			for (int i = 0; i < primaryNoduleFeatures.size(); ++i) {
@@ -50,16 +44,11 @@ public class Operations {
 	
 	public static Double euclidianDistance(Nodule primaryNodule, Nodule observedNodule, FeaturesEnum features) {
 		Double sumFeaturesDifs = new Double("0");
-		List<String> strPrimaryNoduleFeatures = getFeatures(primaryNodule, features);
-		List<String> strObservedNoduleFeatures = getFeatures(observedNodule, features);
+		List<Double> primaryNoduleFeatures = getFeatures(primaryNodule, features);
+		List<Double> observedNoduleFeatures = getFeatures(observedNodule, features);
 				
-		List<Double> primaryNoduleFeatures = strPrimaryNoduleFeatures.stream().map(Double::new)
-				.collect(Collectors.toList());
 
-		List<Double> observedNoduleFeatures = strObservedNoduleFeatures.stream().map(Double::new)
-				.collect(Collectors.toList());
-
-		if (strPrimaryNoduleFeatures.size() == strObservedNoduleFeatures.size()) {
+		if (primaryNoduleFeatures.size() == observedNoduleFeatures.size()) {
 			Double featureDif;
 
 			for (int i = 0; i < primaryNoduleFeatures.size(); ++i) {

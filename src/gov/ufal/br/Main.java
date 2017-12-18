@@ -9,37 +9,24 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
-
-import org.jfree.ui.RefineryUtilities;
+import java.util.stream.Collectors;
 
 public class Main {
 
-	public static void main(String[] args) throws IOException {
 
-		String nameFile = "/home/tamirysp/Documentos/TCC/tcc/smallSolidNodulesFeatures_Tamirys_normalized_ok.csv";
+	static Integer qntRanking = 10;
+	static String nameFile = "/home/tamirysp/Documentos/TCC/tcc/smallNodulesFeatures_novo_standadize_all.csv";
+	
+	public static void main(String[] args) throws IOException {
 
 		File csvFile = new File(nameFile);
 		String csvSplitBy = ",";
-		Integer qntRanking = 10;
 		Distances distanceType = Distances.EUCLIDIAN;
 
-		Double max_RELIEFF_NODULE_SHAPE = 0.0; 
-		Double max_RELIEFF_NODULE_INTENSITY = 0.0; 
-		Double max_RELIEFF_NODULE_INTENSITY_SHAPE = 0.0;
-		Double max_RELIEFF_NODULE_TEXTURE = 0.0;
-		Double max_RELIEFF_NODULE_SHAPE_TEXTURE = 0.0;
-		Double max_RELIEFF_NODULE_INTENSITY_TEXTURE = 0.0;
-		Double max_RELIEFF_NODULE = 0.0;
-		Double max_RELIEFF_PARANCHYMA_INTENSITY = 0.0; 
-		Double max_RELIEFF_PARENCHYMA_TEXTURE = 0.0;
-		Double max_RELIEFF_PARENCHYMA = 0.0;
-		Double max_RELIEFF_NODULE_WITH_PARENCHYMA = 0.0;
-		Double max_RELIEFF_NODULE_WITH_EDGE_SHARPNESS = 0.0;
-		Double max_RELIEFF_PARENCHYMA_WITH_EDGE_SHARPNESS = 0.0;
-		Double max_RELIEFF_BY_ALL = 0.0;
 		/** Max 59 features **/
 		List<SelectedFeaturesEnum> relieff_f = Arrays.asList(
 				SelectedFeaturesEnum.RELIEFF_NODULE_SHAPE, 
@@ -55,8 +42,8 @@ public class Main {
 				SelectedFeaturesEnum.RELIEFF_NODULE_WITH_PARENCHYMA,
 				SelectedFeaturesEnum.RELIEFF_NODULE_WITH_EDGE_SHARPNESS,
 				SelectedFeaturesEnum.RELIEFF_PARENCHYMA_WITH_EDGE_SHARPNESS,
+				SelectedFeaturesEnum.RELIEFF_EDGE_SHARPNESS,
 				SelectedFeaturesEnum.RELIEFF_BY_ALL);
-
 		
 		Set<Nodule> allNodules = setAllNodules(csvFile, csvSplitBy);
 		Set<Nodule> benignNodules = setAllNodulesByMalignance(allNodules, "BENIGN");
@@ -64,10 +51,12 @@ public class Main {
 		System.out.println("Qnt nodulos benignos: " + benignNodules.size() + "\n" + "Qnt nodulos malignos: "
 				+ malignantNodules.size());
 
-		String resultsFile = "/home/tamirysp/Documentos/TCC/tcc/novosResultados_new_all_Tamirys.csv";
+		String resultsFile = "/home/tamirysp/Documentos/TCC/tcc/novo/novosResultados_new_all_withEdge_Tamirys.csv";
 		FileWriter writer = new FileWriter(resultsFile);
 		
 		Integer qntSelectedFeatures = 1;
+		Double maxTenM=0.0;
+		Double maxTenB = 0.0;
 		while(qntSelectedFeatures < 130) {
 			CSVUtils.writeLine(writer, Arrays.asList("NODULOS MALIGNOS - "+ qntSelectedFeatures + "Features selecionadas"));
 			
@@ -83,9 +72,8 @@ public class Main {
 				titulos.add(relieff.getFeatures().size() + " Features");
 			}
 			CSVUtils.writeLine(writer, titulos);
-			for(int qnt = 1; qnt<=qntRanking; qnt++) {
-		        
-				List<PrecisionByRanking> precisionsForNodule = evaluateNodules(malignantNodules, allNodules, relieff_f, distanceType, qnt, "MALIGNANT", writer, qntSelectedFeatures);
+			for(int qnt = 1; qnt<=qntRanking; qnt++) {		        
+				maxTenM = evaluateNodules(malignantNodules, allNodules, relieff_f, distanceType, qnt, "MALIGNANT", writer, qntSelectedFeatures,maxTenM);
 			}
 			CSVUtils.writeLine(writer, Arrays.asList(""));
 			CSVUtils.writeLine(writer, Arrays.asList(""));
@@ -105,7 +93,7 @@ public class Main {
 			}
 			CSVUtils.writeLine(writer, titulos);
 			for (int qnt = 1; qnt <= qntRanking; qnt++) {
-			    List<PrecisionByRanking> precisionsForNoduleB = evaluateNodules(benignNodules, allNodules, relieff_f, distanceType, qnt, "BENIGN", writer, qntSelectedFeatures);	        
+			    maxTenB = evaluateNodules(benignNodules, allNodules, relieff_f, distanceType, qnt, "BENIGN", writer, qntSelectedFeatures, maxTenB);	        
 			}
 		    CSVUtils.writeLine(writer, Arrays.asList(""));
 			writer.flush();
@@ -119,59 +107,71 @@ public class Main {
 	    System.out.println("Ok! Finalizado.");
 	}
 	
-	private static List<PrecisionByRanking> evaluateNodules(Set<Nodule> nodulesByMalignance, Set<Nodule> allNodules,
+	private static Double evaluateNodules(Set<Nodule> nodulesByMalignance, Set<Nodule> allNodules,
 			List<SelectedFeaturesEnum> relieffFeatures, Distances distanceType,Integer qntRanking, String malignance, FileWriter writer,
-			Integer qntOfSelectedFeatures) throws IOException {
+			Integer qntOfSelectedFeatures, Double maxTen) throws IOException {
 		
 		List<List<Double>> precisionsOfNearestNodules;
 		List<FeaturesEnum> selectedFeatures;
-		List<PrecisionByRanking> allPrecisionsByRelieffFeatures = new ArrayList<>();
+		List<PrecisionByRanking> allPrecisionsByRelieffFeatures;
 		
 		List<String> meanAndStandartDeviation;
 		String groupName = null;
-		//while (qntOfSelectedFeatures < 130) {
-			allPrecisionsByRelieffFeatures = new ArrayList<>();
-			meanAndStandartDeviation = new ArrayList<>();
-			meanAndStandartDeviation.add(qntRanking.toString());//qntOfSelectedFeatures.toString());
-			for(SelectedFeaturesEnum relieff : relieffFeatures) {
+		allPrecisionsByRelieffFeatures = new ArrayList<>();
+		meanAndStandartDeviation = new ArrayList<>();
+		meanAndStandartDeviation.add(qntRanking.toString());
+
+		Double maxValue = 0.0;
+		String precision;
+		for(SelectedFeaturesEnum relieff : relieffFeatures) {
+			precision = " - ";
+			if(relieff.getFeatures().size() > qntOfSelectedFeatures-1) {
 				groupName = relieff.getGroupName();
 				precisionsOfNearestNodules = new ArrayList<>();
-				selectedFeatures = relieff.getFeatures().subList(0, 
-						relieff.getFeatures().size() > qntOfSelectedFeatures ? qntOfSelectedFeatures : relieff.getFeatures().size());
-				if (relieff.getFeatures().size() < qntOfSelectedFeatures){
-					break;
-				}
-				//showSelectedFeatures(selectedFeatures);
-				List<Nodule> nearbyNodules;
+				selectedFeatures = relieff.getFeatures().subList(0, qntOfSelectedFeatures);
+	
+				Set<Nodule> nearbyNodules;
 				for(Nodule nodule : nodulesByMalignance) {
 					nearbyNodules = getNearbyNodules(nodule, allNodules, selectedFeatures, distanceType, qntRanking);
-					nodule.setNearbyNodules(new HashSet<>(nearbyNodules));
+					nodule.setNearbyNodules(nearbyNodules);
 					precisionsOfNearestNodules.add(getPrecisions(nodule, nearbyNodules));
 				}
-				meanAndStandartDeviation.add(doRankingPrecisionLeaveOneOut(qntOfSelectedFeatures, groupName, selectedFeatures, precisionsOfNearestNodules, allPrecisionsByRelieffFeatures, writer));
-			}
-			doPrecisionNChart("_"+qntOfSelectedFeatures+"_"+groupName+"_" + malignance, allPrecisionsByRelieffFeatures, malignance);
-			CSVUtils.writeLine(writer, meanAndStandartDeviation);
-			/*if (qntOfSelectedFeatures < 20) {
-				qntOfSelectedFeatures += 1;
-			} else {
-				qntOfSelectedFeatures +=5;
-			}*/
-		//}
-		return allPrecisionsByRelieffFeatures;
+				precision = doRankingPrecisionLeaveOneOut(qntOfSelectedFeatures, groupName, selectedFeatures, precisionsOfNearestNodules, allPrecisionsByRelieffFeatures);
+				String[] p = precision.split(" ");
+				Double prec = Double.parseDouble(p[0]) + Double.parseDouble(p[2]);
+			    if(prec >= maxValue) {
+					maxValue = prec;
+					precision = "*** " + precision + " ***";
+				}
+			    if((qntRanking == 10) && (maxTen<=prec)){
+			    	precision = "++++ " + precision + " ++++";
+			    	maxTen=prec;
+			    }
+			} 
+			meanAndStandartDeviation.add(precision);
+		}
+
+		doPrecisionNChart("_"+qntOfSelectedFeatures+"_"+groupName+"_" + malignance, allPrecisionsByRelieffFeatures, malignance);
+		CSVUtils.writeLine(writer, meanAndStandartDeviation);
+		return maxTen;
 	}
 	
 	private static String doRankingPrecisionLeaveOneOut(int qntSelectedFeatures, String groupName, 
 			List<FeaturesEnum> selectedFeatures,
 			List<List<Double>> precisionsOfNearestNodules, 
-			List<PrecisionByRanking> meanPrecisionsByFeatures, FileWriter writer) throws IOException {
+			List<PrecisionByRanking> meanPrecisionsByFeatures) throws IOException {
 				
+		Double precisionMean;
+		Double stdDeviation;
 		PrecisionByRanking precisionMeanForRankingByFeatures = new PrecisionByRanking(qntSelectedFeatures,
 				groupName, selectedFeatures, getAllMeanPrecisionForLeaveOneOut(precisionsOfNearestNodules));
 		precisionMeanForRankingByFeatures.showResults();
 		meanPrecisionsByFeatures.add(precisionMeanForRankingByFeatures);
-
-		return (precisionMeanForRankingByFeatures.getPrecisionMean() + " +- " + precisionMeanForRankingByFeatures.getStandartDeviation());
+		
+		precisionMean = precisionMeanForRankingByFeatures.getPrecisionMean();
+		stdDeviation = precisionMeanForRankingByFeatures.getStandartDeviation();
+		
+		return precisionMean + " +- " + stdDeviation;
 	}
 	
 	private static List<List<Double>> getAllMeanPrecisionForLeaveOneOut(List<List<Double>> precisionsOfNearestNodules) {
@@ -207,7 +207,7 @@ public class Main {
 		return "MALIGNANT".equals(malignance) ? true : false;
 	}
 
-	public static List<Double> getPrecisions(Nodule nodule, List<Nodule> nearbyNodules) {
+	public static List<Double> getPrecisions(Nodule nodule, Set<Nodule> nearbyNodules) {
 		Double sumMalignances = 0.0;
 		List<Double> partialPrecision = new ArrayList<>();
 		int noduleQnt = 0;
@@ -224,21 +224,20 @@ public class Main {
 		return partialPrecision;
 	}
 
-	private static List<Nodule> getNearbyNodules(Nodule primaryNodule, Set<Nodule> allNodules, List<FeaturesEnum> selectedFeatures,
+	private static Set<Nodule> getNearbyNodules(Nodule primaryNodule, Set<Nodule> allNodules, List<FeaturesEnum> selectedFeatures,
 			Distances distanceType, int qntRanking) {
 		List<Nodule> nearestNodules = new ArrayList<>(allNodules);
 		Double distance = 0.0;
 		for (Nodule nodule : allNodules) {
-			if (distanceType == Distances.EUCLIDIAN) {
+			//if (distanceType == Distances.EUCLIDIAN) {
 				distance = Operations.euclidianDistance(primaryNodule, nodule, selectedFeatures);
-			}
+			//}
 			// TODO else if (distanceFormula == Distances.)
 			nodule.setDistance(distance);
 		}
 		Collections.sort(nearestNodules, Comparator.comparing(Nodule::getDistance));
 
-		return nearestNodules.subList(0,
-					nearestNodules.size() > qntRanking ? qntRanking : nearestNodules.size());
+		return new LinkedHashSet<>(nearestNodules.subList(0, nearestNodules.size() > qntRanking ? qntRanking : nearestNodules.size()));
 	}
 
 	public static Set<Nodule> setAllNodulesByMalignance(Set<Nodule> allNodules, String malignance) {
@@ -248,6 +247,7 @@ public class Main {
 				allNodulesByMalignance.add(nodule);
 			}
 		}
+		System.out.println(allNodulesByMalignance);
 		return allNodulesByMalignance;
 	}
 
@@ -256,8 +256,6 @@ public class Main {
 		XYLineChart precisionChart = new XYLineChart(nameOfFile, precisions, "Precision",
 				"PRECISION FOR " + malignance + " NODULES");
 		precisionChart.pack();
-		//RefineryUtilities.centerFrameOnScreen(precisionChart);
-		//precisionChart.setVisible(true);
 	}
 
 	public static Set<Nodule> setAllNodules(File csvFile, String csvSplitBy) {
@@ -268,12 +266,13 @@ public class Main {
 		try {
 			scanner = new Scanner(csvFile);
 			scanner.nextLine(); // Pula o cabeçalho do arquivo
-			// 182,199,209
 			while (scanner.hasNext()) {
-				List<String> features = Arrays.asList(scanner.nextLine().split(csvSplitBy));
-				nodule = new Nodule(features.get(features.size() - 2), // ID
-						features.subList(0, features.size() - 4), // Features
-						features.get(features.size() - 1)); // Malignance
+				List<String> allData = Arrays.asList(scanner.nextLine().split(csvSplitBy));
+				List<Double> features = allData.subList(0, allData.size() - 4).stream().map(Double::parseDouble).collect(Collectors.toList());
+				
+				nodule = new Nodule(allData.get(allData.size() - 2), // ID
+						features, // Features
+						allData.get(allData.size() - 1)); // Malignance
 				nodules.add(nodule);
 			}
 			scanner.close();
@@ -281,7 +280,7 @@ public class Main {
 			e.printStackTrace();
 			System.err.println("O arquivo não foi encontrado. " + e.getMessage());
 		}
-
+		System.out.println(nodules.size());
 		return nodules;
 	}
 
